@@ -1,0 +1,2 @@
+# ToyGame
+This project is an primarily exercise, although it may develop into other things as time goes on. It is a game, written in C# but built from only the lowest level libraries. All graphics are done in raw OpenGL, networking will be done straight on top of a socket, and so on.
