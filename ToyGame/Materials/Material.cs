@@ -15,17 +15,11 @@ namespace ToyGame
 
     public ShaderProgram Program { get; protected set; }
 
-    protected static Material currentMaterial;
-
     public void Bind()
     {
-      if (currentMaterial != this)
-      {
-        Program.Use();
-        UpdateProgramUniforms();
-        Program.BindUniforms();
-        currentMaterial = this;
-      }
+      Program.Use();
+      UpdateProgramUniforms();
+      Program.BindUniforms();
     }
 
     protected abstract void UpdateProgramUniforms();

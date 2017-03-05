@@ -12,19 +12,22 @@ namespace ToyGame
   {
 
     private StaticMesh staticMesh;
+    private StandardMaterial material;
+    private float totalTime;
 
     public GameWindow()
         // set window resolution, title, and default behaviour
-        : base(1280, 720, GraphicsMode.Default, "OpenTK Intro",
+        : base(1280, 720, new GraphicsMode(32, 24, 0, 8), "OpenTK Intro",
         GameWindowFlags.Default, DisplayDevice.Default,
-        // ask for an OpenGL 3.0 forward compatible context
-        3, 0, GraphicsContextFlags.ForwardCompatible)
+        // Ask for an OpenGL 4.2 forward compatible context
+        4, 2, GraphicsContextFlags.ForwardCompatible)
     {
       Console.WriteLine("gl version: " + GL.GetString(StringName.Version));
       // Enable Texturing
       GL.Enable(EnableCap.Texture2D);
       GL.Enable(EnableCap.Blend);
       GL.Enable(EnableCap.DepthTest);
+      GL.Enable(EnableCap.Multisample);
       GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
     }
 
@@ -36,11 +39,9 @@ namespace ToyGame
     protected override void OnLoad(EventArgs e)
     {
       // Material
-      StandardMaterial material = new StandardMaterial();
-      Matrix4 worldMatrix = Matrix4.CreateRotationY((float) (Math.PI / 2.0f));
-      worldMatrix *= Matrix4.CreateTranslation(0, 0, -25);
-      Matrix4 viewMatrix = Matrix4.CreatePerspectiveFieldOfView(MathHelper.PiOver2, Width / (float) Height, 0.1f, 1000f);
-      material.ProjectionMatrix = worldMatrix * viewMatrix;
+      material = new StandardMaterial();
+      material.ModelMatrix = Matrix4.CreateRotationY((float) (Math.PI / 2.0f)) * Matrix4.CreateTranslation(0, 0, -25);
+      material.ViewMatrix = Matrix4.CreatePerspectiveFieldOfView(MathHelper.PiOver2, Width / (float) Height, 0.1f, 1000f);
       // Geometry
       Mesh mesh = new WavefrontObjLoader().LoadFromFile(@"C:\Users\Alec\thilenius\ToyGame\Assets\Models\AKM\akm.obj");
       Geometry geometry = new Geometry(mesh);
@@ -53,7 +54,8 @@ namespace ToyGame
 
     protected override void OnUpdateFrame(FrameEventArgs e)
     {
-      // this is called every frame, put game logic here
+      totalTime += (float) e.Time;
+      material.ModelMatrix = Matrix4.CreateRotationY(totalTime) * Matrix4.CreateTranslation(0, 0, -30);
     }
 
     protected override void OnRenderFrame(FrameEventArgs e)

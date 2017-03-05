@@ -41,6 +41,9 @@ namespace ToyGame
         GL.DetachShader(handle, shader.Handle);
       }
       GL.UseProgram(handle);
+      var error = GL.GetError();
+      if (error != ErrorCode.NoError)
+        Console.WriteLine("Error after use: " + error.ToString());
       // Get all Attribute locations
       foreach (string attrib in attributes)
       {

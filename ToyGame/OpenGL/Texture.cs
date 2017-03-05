@@ -33,15 +33,10 @@ namespace ToyGame
     private Texture(string path, bool repeat = true, bool flip_y = false)
     {
       Bitmap bitmap = new Bitmap(path);
-      //Flip the image
-      if (flip_y)
-      {
-        bitmap.RotateFlip(RotateFlipType.RotateNoneFlipY);
-      }
       GL.BindTexture(TextureTarget.Texture2D, handle);
-      //float maxAniso;
-      //GL.GetFloat((GetPName) ExtTextureFilterAnisotropic.MaxTextureMaxAnisotropyExt, out maxAniso);
-      //GL.TexParameter(TextureTarget.Texture2D, (TextureParameterName) ExtTextureFilterAnisotropic.TextureMaxAnisotropyExt, maxAniso);
+      float maxAniso;
+      GL.GetFloat((GetPName) ExtTextureFilterAnisotropic.MaxTextureMaxAnisotropyExt, out maxAniso);
+      GL.TexParameter(TextureTarget.Texture2D, (TextureParameterName) ExtTextureFilterAnisotropic.TextureMaxAnisotropyExt, maxAniso);
       GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int) All.Nearest);
       GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int) All.Nearest);
       if (repeat)

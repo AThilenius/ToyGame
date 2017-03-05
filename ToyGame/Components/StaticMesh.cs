@@ -12,22 +12,23 @@ namespace ToyGame
   class StaticMesh
   {
 
+    public readonly Geometry Geometry;
+    public readonly Material Material;
+
     private readonly VertexArrayObject vertexArrayObject;
-    private readonly Geometry geometry;
-    private readonly Material material;
 
     public StaticMesh(Geometry geometry, Material material)
     {
-      this.geometry = geometry;
-      this.material = material;
+      Geometry = geometry;
+      Material = material;
       vertexArrayObject = new VertexArrayObject(geometry.VertexBuffers, geometry.IndexBuffer, material);
     }
 
     public void Draw()
     {
-      material.Bind();
+      Material.Bind();
       vertexArrayObject.Bind();
-      GL.DrawElements(PrimitiveType.Triangles, geometry.IndexBuffer.BufferCount, DrawElementsType.UnsignedInt, IntPtr.Zero);
+      GL.DrawElements(PrimitiveType.Triangles, Geometry.IndexBuffer.BufferCount, DrawElementsType.UnsignedInt, IntPtr.Zero);
     }
 
   }
