@@ -23,13 +23,16 @@ namespace ToyGame
       this.offset = offset;
     }
 
-    public void Set(Material material)
+    public void SetIfPresent(Material material)
     {
       // Get location of attribute from shader program
-      int index = material.GetShaderAttributeLocation(name);
-      // Enable and set attribute
-      GL.EnableVertexAttribArray(index);
-      GL.VertexAttribPointer(index, size, type, normalize, stride, offset);
+      int index = material.Program.GetAttributeLocation(name);
+      if (index >= 0)
+      {
+        // Enable and set attribute
+        GL.EnableVertexAttribArray(index);
+        GL.VertexAttribPointer(index, size, type, normalize, stride, offset);
+      }
     }
 
   }

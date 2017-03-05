@@ -1,4 +1,5 @@
-﻿using OpenTK.Graphics.OpenGL;
+﻿using OpenTK;
+using OpenTK.Graphics.OpenGL;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,37 +13,22 @@ namespace ToyGame
   abstract class Material
   {
 
-    public ShaderProgram Program;
+    public ShaderProgram Program { get; protected set; }
 
     protected static Material currentMaterial;
-
-    private Dictionary<string, int> attributeNamesToLocations = new Dictionary<string, int>();
 
     public void Bind()
     {
       if (currentMaterial != this)
       {
         Program.Use();
-        BindUniforms();
+        UpdateProgramUniforms();
+        Program.BindUniforms();
         currentMaterial = this;
       }
     }
 
-    public int GetShaderAttributeLocation(string name)
-    {
-      return attributeNamesToLocations[name];
-    }
-
-    protected abstract void BindUniforms();
-
-    protected void CacheAttributeLocations(params string[] names)
-    {
-      Program.Use();
-      foreach (string name in names)
-      {
-        attributeNamesToLocations.Add(name, Program.GetAttributeLocation(name));
-      }
-    }
+    protected abstract void UpdateProgramUniforms();
 
   }
 }

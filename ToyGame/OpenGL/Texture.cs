@@ -14,9 +14,23 @@ namespace ToyGame
   class Texture : IDisposable
   {
 
+    public static Texture Default
+    {
+      get
+      {
+        if (defaultTexture == null)
+        {
+          defaultTexture = FromPath(@"C:\Users\Alec\thilenius\ToyGame\Assets\Textures\default.png");
+        }
+        return defaultTexture;
+      }
+    }
+
+    private static Texture defaultTexture;
+    private static Dictionary<string, Texture> textureFiles = new Dictionary<string, Texture>();
     private readonly int handle = GL.GenTexture();
 
-    public Texture(string path, bool repeat = true, bool flip_y = false)
+    private Texture(string path, bool repeat = true, bool flip_y = false)
     {
       Bitmap bitmap = new Bitmap(path);
       //Flip the image
@@ -52,6 +66,19 @@ namespace ToyGame
       GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
       GL.BindTexture(TextureTarget.Texture2D, 0);
     }
+
+    public static Texture FromPath(string path)
+    {
+      Texture existing;
+      if (textureFiles.TryGetValue(path, out existing))
+      {
+        return existing;
+      }
+      Texture texture = new Texture(path);
+      textureFiles.Add(path, texture);
+      return texture;
+    }
+
 
     public void Bind(TextureUnit textureUnit)
     {

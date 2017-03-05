@@ -36,16 +36,19 @@ namespace ToyGame
     protected override void OnLoad(EventArgs e)
     {
       // Material
-      PBRMaterial material = new PBRMaterial();
+      StandardMaterial material = new StandardMaterial();
       Matrix4 worldMatrix = Matrix4.CreateRotationY((float) (Math.PI / 2.0f));
       worldMatrix *= Matrix4.CreateTranslation(0, 0, -25);
-
-      material.ProjectionMatrix = worldMatrix * Matrix4.CreatePerspectiveFieldOfView(MathHelper.PiOver2, Width / (float) Height, 0.1f, 1000f);
+      Matrix4 viewMatrix = Matrix4.CreatePerspectiveFieldOfView(MathHelper.PiOver2, Width / (float) Height, 0.1f, 1000f);
+      material.ProjectionMatrix = worldMatrix * viewMatrix;
       // Geometry
       Mesh mesh = new WavefrontObjLoader().LoadFromFile(@"C:\Users\Alec\thilenius\ToyGame\Assets\Models\AKM\akm.obj");
       Geometry geometry = new Geometry(mesh);
       // StaticMesh
       staticMesh = new StaticMesh(geometry, material);
+      var error = GL.GetError();
+      if (error != ErrorCode.NoError)
+        Console.WriteLine("GLError: " + error.ToString());
     }
 
     protected override void OnUpdateFrame(FrameEventArgs e)
@@ -58,6 +61,9 @@ namespace ToyGame
       GL.ClearColor(Color4.Purple);
       GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
       staticMesh.Draw();
+      var error = GL.GetError();
+      if (error != ErrorCode.NoError)
+        Console.WriteLine("Error post new Renderer(): " + error.ToString());
       this.SwapBuffers();
     }
 

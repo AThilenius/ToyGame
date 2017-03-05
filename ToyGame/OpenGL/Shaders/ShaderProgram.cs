@@ -1,13 +1,35 @@
 ﻿using OpenTK.Graphics.OpenGL;
 using System;
+using System.Collections.Generic;
 
 namespace ToyGame
 {
-  sealed class ShaderProgram : IDisposable
+  abstract class ShaderProgram : IDisposable
   {
-    private readonly int handle = GL.CreateProgram();
+    protected readonly int handle = GL.CreateProgram();
+    protected readonly Dictionary<string, int> attributeLocations = new Dictionary<string, int>();
+    protected readonly Dictionary<string, int> uniformLocations = new Dictionary<string, int>();
 
-    public ShaderProgram(params ShaderStage[] shaders)
+    public int GetAttributeLocation(string name)
+    {
+      int location;
+      return attributeLocations.TryGetValue(name, out location) ? location : -1;
+    }
+
+    public int GetUniformLocation(string name)
+    {
+      int location;
+      return uniformLocations.TryGetValue(name, out location) ? location : -1;
+    }
+
+    public void Use()
+    {
+      GL.UseProgram(handle);
+    }
+
+    public abstract void BindUniforms();
+    
+    protected void Compile (ShaderStage[] shaders, string[] attributes, string[] uniforms)
     {
       foreach (ShaderStage shader in shaders)
       {
@@ -18,21 +40,27 @@ namespace ToyGame
       {
         GL.DetachShader(handle, shader.Handle);
       }
-    }
-
-    public int GetAttributeLocation(string name)
-    {
-      return GL.GetAttribLocation(handle, name);
-    }
-
-    public int GetUniformLocation(string name)
-    {
-      return GL.GetUniformLocation(handle, name);
-    }
-
-    public void Use()
-    {
       GL.UseProgram(handle);
+      // Get all Attribute locations
+      foreach (string attrib in attributes)
+      {
+        int location = GL.GetAttribLocation(handle, attrib);
+        if (location < 0)
+        {
+          Console.WriteLine("Failed to find the attribute [" + attrib + "] in shader GLSL.");
+        }
+        attributeLocations.Add(attrib, location);
+      }
+      // Get all Uniform locations
+      foreach (string uniform in uniforms)
+      {
+        int location = GL.GetUniformLocation(handle, uniform);
+        if (location < 0)
+        {
+          Console.WriteLine("Failed to find the uniform [" + uniform + "] in shader GLSL.");
+        }
+        uniformLocations.Add(uniform, location);
+      }
     }
 
     public void Dispose()

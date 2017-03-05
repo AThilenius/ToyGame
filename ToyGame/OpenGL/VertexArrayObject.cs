@@ -21,7 +21,7 @@ namespace ToyGame
         vbo.Bind();
         foreach (VertexAttribute attribute in vbo.VertexAttributes)
         {
-          attribute.Set(material);
+          attribute.SetIfPresent(material);
         }
       }
     }
