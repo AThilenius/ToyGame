@@ -10,14 +10,17 @@ namespace ToyGame
 {
   // A material has a shader program, and exposes all the unifrms as nice properties.
   // Calling Bind makes sure all uniforms are set and the shader is in use.
-  abstract class Material
+  public abstract class Material
   {
 
-    public ShaderProgram Program { get; protected set; }
+    internal GLShaderProgram Program;
 
-    public void Bind()
+    public void Bind(ACamera camera, Matrix4 modelMatrix)
     {
       Program.Use();
+      Program.ProjectionMatrix = camera.ProjectionMatrix;
+      Program.ViewMatrix = camera.ViewMatrix;
+      Program.ModelMatrix = modelMatrix;
       UpdateProgramUniforms();
       Program.BindUniforms();
     }

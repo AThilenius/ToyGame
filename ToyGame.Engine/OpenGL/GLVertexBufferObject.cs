@@ -4,25 +4,25 @@ using System.Runtime.InteropServices;
 
 namespace ToyGame
 {
-  sealed class VertexBufferObject : IDisposable
+  sealed class GLVertexBufferObject : IDisposable
   {
 
-    public readonly VertexAttribute[] VertexAttributes;
+    public readonly GLVertexAttribute[] VertexAttributes;
     public readonly int BufferCount;
 
     private readonly int handle = GL.GenBuffer();
     private readonly BufferTarget target;
 
-    private VertexBufferObject(BufferTarget bufferTarget, VertexAttribute[] vertexAttributes, int bufferCount)
+    private GLVertexBufferObject(BufferTarget bufferTarget, GLVertexAttribute[] vertexAttributes, int bufferCount)
     {
       VertexAttributes = vertexAttributes;
       target = bufferTarget;
       BufferCount = bufferCount;
     }
 
-    public static VertexBufferObject FromData<T>(T[] data, BufferTarget bufferTarget, BufferUsageHint bufferUsageHint, params VertexAttribute[] vertexAttributes) where T : struct
+    public static GLVertexBufferObject FromData<T>(T[] data, BufferTarget bufferTarget, BufferUsageHint bufferUsageHint, params GLVertexAttribute[] vertexAttributes) where T : struct
     {
-      VertexBufferObject vbo = new VertexBufferObject(bufferTarget, vertexAttributes, data.Length);
+      GLVertexBufferObject vbo = new GLVertexBufferObject(bufferTarget, vertexAttributes, data.Length);
       vbo.Bind();
       GL.BufferData(bufferTarget, (IntPtr) (Marshal.SizeOf(typeof(T)) * data.Length), data, bufferUsageHint);
       return vbo;

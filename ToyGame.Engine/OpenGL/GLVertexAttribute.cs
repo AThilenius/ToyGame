@@ -3,7 +3,7 @@ using OpenTK.Graphics.OpenGL;
 
 namespace ToyGame
 {
-  sealed class VertexAttribute
+  sealed class GLVertexAttribute
   {
 
     private readonly string name;
@@ -13,7 +13,7 @@ namespace ToyGame
     private readonly int stride;
     private readonly int offset;
 
-    public VertexAttribute(string name, int size, VertexAttribPointerType type, bool normalize, int stride, int offset)
+    public GLVertexAttribute(string name, int size, VertexAttribPointerType type, bool normalize, int stride, int offset)
     {
       this.name = name;
       this.size = size;
@@ -23,10 +23,10 @@ namespace ToyGame
       this.offset = offset;
     }
 
-    public void SetIfPresent(Material material)
+    public void SetIfPresent(GLShaderProgram shaderProgram)
     {
       // Get location of attribute from shader program
-      int index = material.Program.GetAttributeLocation(name);
+      int index = shaderProgram.GetAttributeLocation(name);
       if (index >= 0)
       {
         // Enable and set attribute

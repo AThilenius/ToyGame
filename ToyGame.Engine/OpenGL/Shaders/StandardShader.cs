@@ -8,11 +8,11 @@ using System.Threading.Tasks;
 
 namespace ToyGame
 {
-  class StandardShader : ShaderProgram
+  class StandardShader : GLShaderProgram
   {
 
     #region ShaderGLSL
-    private ShaderStage vertexShader = new ShaderStage(ShaderType.VertexShader,
+    private GLShaderStage vertexShader = new GLShaderStage(ShaderType.VertexShader,
       @"#version 420
         in vec3 position;
         in vec2 uv0;
@@ -34,7 +34,7 @@ namespace ToyGame
             gl_Position =  projectionMatrix * viewMatrix * vec4(WorldPos, 1.0);
         }");
 
-    private ShaderStage fragmentShader = new ShaderStage(ShaderType.FragmentShader,
+    private GLShaderStage fragmentShader = new GLShaderStage(ShaderType.FragmentShader,
       @"#version 420
         out vec4 FragColor;
         in vec2 TexCoords;
@@ -192,22 +192,12 @@ namespace ToyGame
     #endregion
 
     // Uniforms
-    public Matrix4 ProjectionMatrix = Matrix4.Identity;
-    public Matrix4 ViewMatrix = Matrix4.Identity;
-    public Matrix4 ModelMatrix = Matrix4.Identity;
 
     public StandardShader()
     {
-      Compile(new ShaderStage[] { vertexShader, fragmentShader },
+      Compile(new GLShaderStage[] { vertexShader, fragmentShader },
           new string[] { "position", "uv0", "normal" },
-          new string[] { "projectionMatrix", "viewMatrix", "modelMatrix" });
-    }
-
-    public override void BindUniforms()
-    {
-      GL.UniformMatrix4(GetUniformLocation("projectionMatrix"), false, ref ProjectionMatrix);
-      GL.UniformMatrix4(GetUniformLocation("viewMatrix"), false, ref ViewMatrix);
-      GL.UniformMatrix4(GetUniformLocation("modelMatrix"), false, ref ModelMatrix);
+          new string[0]);
     }
 
   }

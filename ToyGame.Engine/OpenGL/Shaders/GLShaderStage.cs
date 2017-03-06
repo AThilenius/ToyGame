@@ -3,14 +3,14 @@ using System;
 
 namespace ToyGame
 {
-  sealed class ShaderStage : IDisposable
+  sealed class GLShaderStage : IDisposable
   {
 
     private readonly int handle;
 
     public int Handle { get { return this.handle; } }
 
-    public ShaderStage(ShaderType type, string code)
+    public GLShaderStage(ShaderType type, string code)
     {
       handle = GL.CreateShader(type);
       // Compile vertex shader

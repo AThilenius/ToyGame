@@ -6,8 +6,10 @@ using System.Threading.Tasks;
 
 namespace ToyGame
 {
-  static class ResourceManager
+  public interface IRenderable
   {
+
+    void Render(ACamera camera);
 
   }
 }

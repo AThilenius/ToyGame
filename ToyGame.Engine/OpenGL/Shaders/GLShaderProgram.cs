@@ -1,11 +1,17 @@
-﻿using OpenTK.Graphics.OpenGL;
+﻿using OpenTK;
+using OpenTK.Graphics.OpenGL;
 using System;
 using System.Collections.Generic;
 
 namespace ToyGame
 {
-  abstract class ShaderProgram : IDisposable
+  abstract class GLShaderProgram : IDisposable
   {
+
+    public Matrix4 ProjectionMatrix = Matrix4.Identity;
+    public Matrix4 ViewMatrix = Matrix4.Identity;
+    public Matrix4 ModelMatrix = Matrix4.Identity;
+
     protected readonly int handle = GL.CreateProgram();
     protected readonly Dictionary<string, int> attributeLocations = new Dictionary<string, int>();
     protected readonly Dictionary<string, int> uniformLocations = new Dictionary<string, int>();
@@ -27,16 +33,24 @@ namespace ToyGame
       GL.UseProgram(handle);
     }
 
-    public abstract void BindUniforms();
-    
-    protected void Compile (ShaderStage[] shaders, string[] attributes, string[] uniforms)
+    public virtual void BindUniforms()
     {
-      foreach (ShaderStage shader in shaders)
+      GL.UniformMatrix4(GetUniformLocation("projectionMatrix"), false, ref ProjectionMatrix);
+      GL.UniformMatrix4(GetUniformLocation("viewMatrix"), false, ref ViewMatrix);
+      GL.UniformMatrix4(GetUniformLocation("modelMatrix"), false, ref ModelMatrix);
+    }
+
+    protected void Compile (GLShaderStage[] shaders, string[] attributes, string[] uniforms)
+    {
+      List<string> allUniforms = new List<string>();
+      allUniforms.AddRange(new string[] { "projectionMatrix", "viewMatrix", "modelMatrix" });
+      allUniforms.AddRange(uniforms);
+      foreach (GLShaderStage shader in shaders)
       {
         GL.AttachShader(handle, shader.Handle);
       }
       GL.LinkProgram(handle);
-      foreach (ShaderStage shader in shaders)
+      foreach (GLShaderStage shader in shaders)
       {
         GL.DetachShader(handle, shader.Handle);
       }
@@ -55,7 +69,7 @@ namespace ToyGame
         attributeLocations.Add(attrib, location);
       }
       // Get all Uniform locations
-      foreach (string uniform in uniforms)
+      foreach (string uniform in allUniforms)
       {
         int location = GL.GetUniformLocation(handle, uniform);
         if (location < 0)
