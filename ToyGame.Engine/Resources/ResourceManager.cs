@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Assimp;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,6 +10,8 @@ namespace ToyGame
   public static class ResourceManager
   {
 
+    // Need one per loading thread
+    private static AssimpContext importer = new AssimpContext();
     private static Dictionary<string, Resource> resources = new Dictionary<string, Resource>();
 
     public static T GetDefault<T>(string path) where T : Resource
@@ -33,9 +36,13 @@ namespace ToyGame
         resource = TextureResource.LoadSync(path);
       }
       // Load Mesh
-      if (typeof(MeshResource).IsAssignableFrom(typeof(T)))
+      if (typeof(ModelResource).IsAssignableFrom(typeof(T)))
       {
-        resource = MeshResource.LoadSync(path);
+        resource = ModelResource.LoadSync(importer, path);
+      }
+      if (typeof(VoxResource).IsAssignableFrom(typeof(T)))
+      {
+        resource = VoxResource.LoadAsync(path);
       }
       resources.Add(path, resource);
       return (T) resource;

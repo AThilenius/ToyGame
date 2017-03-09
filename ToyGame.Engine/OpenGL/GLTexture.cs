@@ -8,6 +8,7 @@ using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 using System.Drawing.Imaging;
+using FreeImageAPI;
 
 namespace ToyGame
 {
@@ -16,32 +17,29 @@ namespace ToyGame
 
     private readonly int handle = GL.GenTexture();
 
-    public GLTexture(BitmapData data, bool repeat = true)
+    public GLTexture(string filePath, GLTextureParams textureParams)
     {
-      GL.BindTexture(TextureTarget.Texture2D, handle);
-      float maxAniso;
-      GL.GetFloat((GetPName) ExtTextureFilterAnisotropic.MaxTextureMaxAnisotropyExt, out maxAniso);
-      GL.TexParameter(TextureTarget.Texture2D, (TextureParameterName) ExtTextureFilterAnisotropic.TextureMaxAnisotropyExt, maxAniso);
-      GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int) All.Nearest);
-      GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int) All.Nearest);
-      if (repeat)
+      FREE_IMAGE_FORMAT fileFormat = FreeImage.GetFileType(filePath, 0);
+      if (fileFormat == FREE_IMAGE_FORMAT.FIF_UNKNOWN)
       {
-        //This will repeat the texture past its bounds set by TexImage2D
-        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int) All.Repeat);
-        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int) All.Repeat);
+        fileFormat = FreeImage.GetFIFFromFilename(filePath);
+        if (fileFormat == FREE_IMAGE_FORMAT.FIF_UNKNOWN)
+        {
+          throw new Exception("Failed to load image at: " + filePath);
+        }
+        if (!FreeImage.FIFSupportsReading(fileFormat))
+        {
+          throw new Exception("The file type is not supported: " + filePath);
+        }
       }
-      else
-      {
-        //This will clamp the texture to the edge, so manipulation will result in skewing
-        //It can also be useful for getting rid of repeating texture bits at the borders
-        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int) All.ClampToEdge);
-        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int) All.ClampToEdge);
-      }
-      GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, data.Width, data.Height, 0,
-          OpenTK.Graphics.OpenGL.PixelFormat.Bgra, PixelType.UnsignedByte, data.Scan0);
-      // Generate Mip Maps
-      GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
-      GL.BindTexture(TextureTarget.Texture2D, 0);
+      FIBITMAP image = FreeImage.Load(fileFormat, filePath, FREE_IMAGE_LOAD_FLAGS.DEFAULT);
+      uint bitsPerPixel = FreeImage.GetBPP(image);
+      FIBITMAP bitmap32 = bitsPerPixel == 32 ? image : FreeImage.ConvertTo32Bits(image);
+      uint width = FreeImage.GetWidth(bitmap32);
+      uint height = FreeImage.GetHeight(bitmap32);
+      IntPtr data = FreeImage.GetBits(bitmap32);
+      LoadGLTexture(width, height, textureParams, data);
+      FreeImage.FreeHbitmap(data);
     }
 
     public void Bind(TextureUnit textureUnit)
@@ -53,6 +51,28 @@ namespace ToyGame
     public void Dispose()
     {
       GL.DeleteTexture(handle);
+    }
+
+    private void LoadGLTexture(uint width, uint height, GLTextureParams textureParams, IntPtr data)
+    {
+      GL.BindTexture(textureParams.Target, handle);
+      if (textureParams.UseAnisotropicFiltering)
+      {
+        float maxAniso;
+        GL.GetFloat((GetPName) ExtTextureFilterAnisotropic.MaxTextureMaxAnisotropyExt, out maxAniso);
+        GL.TexParameter(textureParams.Target, (TextureParameterName) ExtTextureFilterAnisotropic.TextureMaxAnisotropyExt, maxAniso);
+      }
+      GL.TexParameter(textureParams.Target, TextureParameterName.TextureMagFilter, (int) textureParams.MagFilter);
+      GL.TexParameter(textureParams.Target, TextureParameterName.TextureMinFilter, (int) textureParams.MinFilter);
+      GL.TexParameter(textureParams.Target, TextureParameterName.TextureWrapS, (int) textureParams.WrapS);
+      GL.TexParameter(textureParams.Target, TextureParameterName.TextureWrapT, (int) textureParams.WrapT);
+      GL.TexImage2D(textureParams.Target, 0, PixelInternalFormat.Rgba, (int) width, (int) height, 0,
+          OpenTK.Graphics.OpenGL.PixelFormat.Bgra, PixelType.UnsignedByte, data);
+      if (textureParams.GenerateMipMaps)
+      {
+        GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
+      }
+      GL.BindTexture(textureParams.Target, 0);
     }
 
   }

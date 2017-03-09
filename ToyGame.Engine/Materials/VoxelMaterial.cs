@@ -8,21 +8,19 @@ using OpenTK;
 
 namespace ToyGame
 {
-  public class StandardMaterial : Material
+  public class VoxelMaterial : Material
   {
 
     public TextureResource DiffuseTexture = ResourceManager.FromPath<TextureResource>(@"C:\Users\Alec\thilenius\ToyGame\Assets\Models\AKM\textures\WPNT_AKM_BaseColor.tga");
-    public TextureResource NormalTexture = ResourceManager.FromPath<TextureResource>(@"C:\Users\Alec\thilenius\ToyGame\Assets\Models\AKM\textures\WPNT_AKM_Normal.tga");
     public TextureResource RoughnessMetallicTexture = ResourceManager.FromPath<TextureResource>(@"C:\Users\Alec\thilenius\ToyGame\Assets\Models\AKM\textures\WPNT_AKM_RoughnessMetallic.tga");
-    public TextureResource AmbientOcclusionTexture = ResourceManager.FromPath<TextureResource>(@"C:\Users\Alec\thilenius\ToyGame\Assets\Models\AKM\textures\WPNT_AKM_Ambient_occlusion.tga");
 
-    private static StandardShader standardShader;
+    private static VoxelShader standardShader;
 
-    public StandardMaterial()
+    public VoxelMaterial()
     {
       if (standardShader == null)
       {
-        standardShader = new StandardShader();
+        standardShader = new VoxelShader();
       }
       Program = standardShader;
     }
@@ -30,9 +28,7 @@ namespace ToyGame
     protected override void UpdateProgramUniforms()
     {
       DiffuseTexture.GLTexture.Bind(TextureUnit.Texture0);
-      NormalTexture.GLTexture.Bind(TextureUnit.Texture1);
-      RoughnessMetallicTexture.GLTexture.Bind(TextureUnit.Texture2);
-      AmbientOcclusionTexture.GLTexture.Bind(TextureUnit.Texture3);
+      RoughnessMetallicTexture.GLTexture.Bind(TextureUnit.Texture1);
     }
   }
 }

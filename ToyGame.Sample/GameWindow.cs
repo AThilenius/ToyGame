@@ -38,14 +38,37 @@ namespace ToyGame.Sample
 
     protected override void OnLoad(EventArgs e)
     {
+      VoxResource vox = ResourceManager.FromPath<VoxResource>(@"C:\Users\Alec\Desktop\tank\pbs_test\pbs_test.vox");
       ACamera camera = new ACamera { AspectRatio = (Width / (float) Height) };
-      StandardMaterial material = new StandardMaterial();
-      MeshResource mesh = ResourceManager.FromPath<MeshResource>(@"C:\Users\Alec\thilenius\ToyGame\Assets\Models\AKM\akm.obj");
-      staticMesh = new AStaticMesh(mesh, material);
-      staticMesh.Transform.Position = new Vector3(0, 0, -50);
+
+      VoxelMaterial material = new VoxelMaterial();
+
+      //ModelResource model = ResourceManager.FromPath<ModelResource>(@"C:\Users\Alec\thilenius\ToyGame\Assets\Models\MaterialPreview.fbx");
+      //staticMesh = new AStaticMesh(model, material);
+      //staticMesh.Transform.Position = new Vector3(0, -150, -300);
+
+      //ModelResource model = ResourceManager.FromPath<ModelResource>(@"C:\Users\Alec\thilenius\ToyGame\Assets\Models\AKM\WPN_AKM.FBX");
+      //staticMesh = new AStaticMesh(model, material);
+      //staticMesh.Transform.Position = new Vector3(0, 0, -30);
+
+      //ModelResource mesh = ResourceManager.FromPath<ModelResource>(@"C:\Users\Alec\thilenius\ToyGame\Assets\Models\build_crane_01.FBX");
+      //staticMesh = new AStaticMesh(model, material);
+      //staticMesh.Transform.Position = new Vector3(0, -500, -1300);
+
+      //ModelResource model = ResourceManager.FromPath<ModelResource>(@"C:\Users\Alec\Desktop\sphere.fbx");
+      //staticMesh = new AStaticMesh(model, material);
+      //staticMesh.Transform.Scale = new Vector3(0.1f);
+      //staticMesh.Transform.Position = new Vector3(0, 0, -20);
+
+      ModelResource model = ResourceManager.FromPath<ModelResource>(@"C:\Users\Alec\Desktop\tank\pbs_test\sample.obj");
+      staticMesh = new AStaticMesh(model, material);
+      staticMesh.Transform.Position = new Vector3(0, 0, -20);
+      staticMesh.Transform.Rotation = Quaternion.FromEulerAngles(0, 0, (float) Math.PI / 2.0f);
+
       ULevel level = new ULevel();
       world.AddLevel(level);
       level.AddActor(staticMesh);
+      //level.AddActor(barracs);
       level.AddActor(camera);
       var error = GL.GetError();
       if (error != ErrorCode.NoError)
@@ -55,7 +78,7 @@ namespace ToyGame.Sample
     protected override void OnUpdateFrame(FrameEventArgs e)
     {
       totalTime += (float) e.Time;
-      staticMesh.Transform.Rotation = Quaternion.FromEulerAngles(0, totalTime, 0);
+      staticMesh.Transform.Rotation = Quaternion.FromEulerAngles(0, totalTime / 2.0f, (float) -Math.PI / 2.0f);
     }
 
     protected override void OnRenderFrame(FrameEventArgs e)

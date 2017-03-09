@@ -7,18 +7,18 @@ namespace ToyGame
   sealed class GLVertexArrayObject : IDisposable
   {
 
-    private static Dictionary<Tuple<MeshResource, GLShaderProgram>, GLVertexArrayObject> existingBuffers = new Dictionary<Tuple<MeshResource, GLShaderProgram>, GLVertexArrayObject>();
+    private static Dictionary<Tuple<GLMesh, GLShaderProgram>, GLVertexArrayObject> existingBuffers = new Dictionary<Tuple<GLMesh, GLShaderProgram>, GLVertexArrayObject>();
     private static GLVertexArrayObject activeVertexArray;
     private readonly int handle = GL.GenVertexArray();
 
-    private GLVertexArrayObject(MeshResource meshResource, GLShaderProgram shaderProgram)
+    private GLVertexArrayObject(GLMesh mesh, GLShaderProgram shaderProgram)
     {
       // Bind the VAO
       Bind();
       // Bind the IBO
-      meshResource.GLGeometry.IndexBuffer.Bind();
+      mesh.IndexBuffer.Bind();
       // In tern, bind each VBO, and bind all of it's vertex attributes
-      foreach (GLVertexBufferObject vbo in meshResource.GLGeometry.VertexBuffers)
+      foreach (GLVertexBufferObject vbo in mesh.VertexBuffers)
       {
         vbo.Bind();
         foreach (GLVertexAttribute attribute in vbo.VertexAttributes)
@@ -28,13 +28,13 @@ namespace ToyGame
       }
     }
 
-    public static GLVertexArrayObject FromPair(MeshResource meshResource, GLShaderProgram glShaderProgram)
+    public static GLVertexArrayObject FromPair(GLMesh mesh, GLShaderProgram glShaderProgram)
     {
       GLVertexArrayObject glVAO;
-      var tupple = new Tuple<MeshResource, GLShaderProgram>(meshResource, glShaderProgram);
+      var tupple = new Tuple<GLMesh, GLShaderProgram>(mesh, glShaderProgram);
       if (!existingBuffers.TryGetValue(tupple, out glVAO))
       {
-        glVAO = new GLVertexArrayObject(meshResource, glShaderProgram);
+        glVAO = new GLVertexArrayObject(mesh, glShaderProgram);
         existingBuffers.Add(tupple, glVAO);
       }
       return glVAO;

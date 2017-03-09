@@ -15,13 +15,13 @@ namespace ToyGame
   /// <summary>
   /// Represents the set of VBO and IVO buffers needed to render a model (position, normal, uv, index...).
   /// </summary>
-  sealed class GLGeometry
+  sealed class GLMesh
   {
 
     public readonly GLVertexBufferObject[] VertexBuffers;
     public readonly GLVertexBufferObject IndexBuffer;
 
-    public GLGeometry(Vector3[] positions, uint[] indexes, Vector3[] normals = null, Vector2[] uv0 = null,
+    public GLMesh(Vector3[] positions, uint[] indexes, Vector3[] normals = null, Vector2[] uv0 = null,
       Vector2[] uv1 = null, Color4[] colors = null, BufferUsageHint usage = BufferUsageHint.StaticDraw)
     {
       // Verts, normals, uv0, uv1 and colors must all be the same size, if they are used.

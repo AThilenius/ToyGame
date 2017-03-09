@@ -20,12 +20,12 @@ namespace ToyGame
 
     public static TextureResource LoadSync(string path)
     {
+      //Bitmap bitmap = new Bitmap(path);
+      //BitmapData data = bitmap.LockBits(new System.Drawing.Rectangle(0, 0, bitmap.Width, bitmap.Height),
+      //    ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
       TextureResource texture = new TextureResource(path);
-      Bitmap bitmap = new Bitmap(path);
-      BitmapData data = bitmap.LockBits(new System.Drawing.Rectangle(0, 0, bitmap.Width, bitmap.Height),
-          ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-      texture.GLTexture = new GLTexture(data);
-      bitmap.UnlockBits(data);
+      texture.GLTexture = new GLTexture(path, GLTextureParams.Default);
+      //bitmap.UnlockBits(data);
       return texture;
     }
 

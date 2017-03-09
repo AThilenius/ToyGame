@@ -9,7 +9,8 @@ namespace ToyGame
   public enum ResourceType
   {
     Texture,
-    Mesh
+    Mesh,
+    MagicaVoxel
   }
 
   public abstract class Resource
