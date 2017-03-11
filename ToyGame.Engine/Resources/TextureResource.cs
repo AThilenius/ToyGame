@@ -1,33 +1,61 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Drawing.Imaging;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.IO;
+using FreeImageAPI;
+using ToyGame.OpenGL;
+using ToyGame.Resources.DataBlocks;
 
-namespace ToyGame
+namespace ToyGame.Resources
 {
   public class TextureResource : Resource
   {
+    #region Fields / Properties
 
+    public uint Width => ((TextureDataBlock) DataBlock).Width;
+    public uint Height => ((TextureDataBlock) DataBlock).Height;
+    public byte[] RawData => ((TextureDataBlock) DataBlock).RawData;
     internal GLTexture GLTexture;
 
-    private TextureResource(string path)
-      : base(path, ResourceType.Texture)
+    #endregion
+
+    internal TextureResource(ResourceBundle bundle) : base(bundle)
     {
+      DataBlock = new TextureDataBlock();
     }
 
-    public static TextureResource LoadSync(string path)
+    public override void ImportFromFullPath(string fullPath)
     {
-      //Bitmap bitmap = new Bitmap(path);
-      //BitmapData data = bitmap.LockBits(new System.Drawing.Rectangle(0, 0, bitmap.Width, bitmap.Height),
-      //    ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-      TextureResource texture = new TextureResource(path);
-      texture.GLTexture = new GLTexture(path, GLTextureParams.Default);
-      //bitmap.UnlockBits(data);
-      return texture;
+      base.ImportFromFullPath(fullPath);
+      var fileFormat = FreeImage.GetFileType(fullPath, 0);
+      if (fileFormat == FREE_IMAGE_FORMAT.FIF_UNKNOWN)
+      {
+        fileFormat = FreeImage.GetFIFFromFilename(fullPath);
+        if (fileFormat == FREE_IMAGE_FORMAT.FIF_UNKNOWN)
+        {
+          throw new ResourceImportException("Failed to import texture from: " + fullPath);
+        }
+        if (!FreeImage.FIFSupportsReading(fileFormat))
+        {
+          throw new ResourceImportException("Unsupported file format: " + fullPath);
+        }
+      }
+      var image = FreeImage.Load(fileFormat, fullPath, FREE_IMAGE_LOAD_FLAGS.DEFAULT);
+      var bitsPerPixel = FreeImage.GetBPP(image);
+      // Convert all images (for now) to full 32bit.
+      var bitmap32 = bitsPerPixel == 32 ? image : FreeImage.ConvertTo32Bits(image);
+      ((TextureDataBlock) DataBlock).Width = FreeImage.GetWidth(bitmap32);
+      ((TextureDataBlock) DataBlock).Height = FreeImage.GetHeight(bitmap32);
+      var stream = new MemoryStream();
+      FreeImage.SaveToStream(bitmap32, stream, FREE_IMAGE_FORMAT.FIF_TARGA);
+      ((TextureDataBlock) DataBlock).RawData = stream.ToArray();
     }
 
+    internal override void LoadToGpu()
+    {
+      var stream = new MemoryStream(RawData);
+      var image = FreeImage.LoadFromStream(stream, FREE_IMAGE_LOAD_FLAGS.DEFAULT);
+      var data = FreeImage.GetBits(image);
+      GLTexture = GLTexture.LoadGLTexture(Width, Height, GLTextureParams.Default, data);
+      FreeImage.FreeHbitmap(data);
+    }
   }
 }

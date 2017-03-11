@@ -1,18 +1,15 @@
-﻿using OpenTK;
-using OpenTK.Graphics.OpenGL;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System;
+using OpenTK;
+using ProtoBuf;
+using ToyGame.Gameplay;
+using ToyGame.OpenGL.Shaders;
 
-namespace ToyGame
+namespace ToyGame.Materials
 {
   // A material has a shader program, and exposes all the unifrms as nice properties.
   // Calling Bind makes sure all uniforms are set and the shader is in use.
   public abstract class Material
   {
-
     internal GLShaderProgram Program;
 
     public void Bind(ACamera camera, Matrix4 modelMatrix)
@@ -26,6 +23,5 @@ namespace ToyGame
     }
 
     protected abstract void UpdateProgramUniforms();
-
   }
 }

@@ -1,18 +1,66 @@
 ﻿using OpenTK;
 using OpenTK.Graphics.OpenGL;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace ToyGame
+namespace ToyGame.OpenGL.Shaders
 {
-  class VoxelShader : GLShaderProgram
+  internal class VoxelShader : GLShaderProgram
   {
+    #region Fields / Properties
+
+    private readonly Vector3 _cameraPosition = Vector3.Zero;
+    private readonly float _exposure = 1.0f;
+
+    private readonly Vector3[] _lightColors = new Vector3[4]
+    {
+      new Vector3(500.0f, 100.0f, 100.0f),
+      new Vector3(100.0f, 500.0f, 100.0f),
+      new Vector3(100.0f, 100.0f, 500.0f),
+      new Vector3(100.0f, 100.0f, 100.0f)
+    };
+
+    private readonly Vector3[] _lightPositions = new Vector3[4]
+    {
+      new Vector3(-10.0f, 0.0f, 10.0f),
+      new Vector3(10.0f, 0.0f, 10.0f),
+      new Vector3(-10.0f, -10.0f, 10.0f),
+      new Vector3(10.0f, -10.0f, 10.0f)
+    };
+
+    #endregion
+
+    public VoxelShader()
+    {
+      Compile(new[] {_vertexShader, _fragmentShader},
+        new[] {"position", "uv0", "normal"},
+        new[]
+        {
+          "camPos", "exposure",
+          "lightPositions[0]",
+          "lightPositions[1]",
+          "lightPositions[2]",
+          "lightPositions[3]",
+          "lightColors[0]",
+          "lightColors[1]",
+          "lightColors[2]",
+          "lightColors[3]"
+        });
+    }
+
+    public override void BindUniforms()
+    {
+      base.BindUniforms();
+      GL.Uniform1(GetUniformLocation("exposure"), _exposure);
+      GL.Uniform3(GetUniformLocation("camPos"), _cameraPosition);
+      for (var i = 0; i < 4; i++)
+      {
+        GL.Uniform3(GetUniformLocation("lightPositions[" + i + "]"), _lightPositions[i]);
+        GL.Uniform3(GetUniformLocation("lightColors[" + i + "]"), _lightColors[i]);
+      }
+    }
 
     #region ShaderGLSL
-    private GLShaderStage vertexShader = new GLShaderStage(ShaderType.VertexShader, @"
+
+    private readonly GLShaderStage _vertexShader = new GLShaderStage(ShaderType.VertexShader, @"
         #version 420
         in vec3 position;
         in vec2 uv0;
@@ -35,20 +83,18 @@ namespace ToyGame
             gl_Position =  projectionMatrix * viewMatrix * vec4(WorldPos, 1.0);
         }");
 
-    private GLShaderStage fragmentShader = new GLShaderStage(ShaderType.FragmentShader, @"
-        #version 330 core
+    private readonly GLShaderStage _fragmentShader = new GLShaderStage(ShaderType.FragmentShader, @"
+        #version 420 core
         out vec4 FragColor;
         in vec2 TexCoords;
         in vec3 WorldPos;
         in vec3 Normal;
 
-        // material parameters
-        uniform vec3 albedo;
-        uniform float metallic;
-        uniform float roughness;
-        uniform float ao;
+        // Material parameters
+        layout(binding=0) uniform sampler2D albedoMap;
+        layout(binding=1) uniform sampler2D metallicRoughnessMap;
 
-        // lights
+        // Lights
         uniform vec3 lightPositions[4];
         uniform vec3 lightColors[4];
 
@@ -99,6 +145,13 @@ namespace ToyGame
         // ----------------------------------------------------------------------------
         void main()
         {		
+            // For now, don't gamma correct the albedo. Looks more cartoony then.
+            // vec3 albedo = pow(texture(albedoMap, TexCoords).rgb, vec3(2.2));
+            vec3 albedo = texture(albedoMap, TexCoords).rgb;
+            vec2 metallicRoughness = texture(metallicRoughnessMap, TexCoords).rg;
+            float roughness = metallicRoughness.r;
+            float metallic  = metallicRoughness.g;
+
             vec3 N = normalize(Normal);
             vec3 V = normalize(camPos - WorldPos);
 
@@ -147,7 +200,7 @@ namespace ToyGame
             
             // ambient lighting (note that the next IBL tutorial will replace 
             // this ambient lighting with environment lighting).
-            vec3 ambient = vec3(0.03) * albedo * ao;
+            vec3 ambient = vec3(0.03) * albedo;
 
             vec3 color = ambient + Lo;
 
@@ -158,65 +211,7 @@ namespace ToyGame
 
             FragColor = vec4(color, 1.0);
         }");
+
     #endregion
-
-    Vector3 Albedo = new Vector3(0.5f, 0.0f, 0.0f);
-    float Metalic = 0.9f;
-    float Roughness = 0.2f;
-    float AO = 1.0f;
-
-    Vector3[] LightPositions = new Vector3[4]
-    {
-        new Vector3(-10.0f,  10.0f, 10.0f),
-        new Vector3( 10.0f,  10.0f, 10.0f),
-        new Vector3(-10.0f, -10.0f, 10.0f),
-        new Vector3( 10.0f, -10.0f, 10.0f)
-    };
-
-    Vector3[] LightColors = new Vector3[4]
-    {
-        new Vector3(10000.0f, 10000.0f, 10000.0f),
-        new Vector3(300.0f, 300.0f, 300.0f),
-        new Vector3(300.0f, 300.0f, 300.0f),
-        new Vector3(300.0f, 300.0f, 300.0f)
-    };
-
-    Vector3 CameraPosition = Vector3.Zero;
-    float Exposure = 1.0f;
-
-    public VoxelShader()
-    {
-      Compile(new GLShaderStage[] { vertexShader, fragmentShader },
-          new string[] { "position", "uv0", "normal" },
-          new string[] { "albedo", "metallic", "roughness", "ao", "camPos", "exposure",
-          "lightPositions[0]",
-          "lightPositions[1]",
-          "lightPositions[2]",
-          "lightPositions[3]",
-          "lightColors[0]",
-          "lightColors[1]",
-          "lightColors[2]",
-          "lightColors[3]" });
-    }
-
-    public override void BindUniforms()
-    {
-      base.BindUniforms();
-
-      GL.Uniform1(GetUniformLocation("metallic"), Metalic);
-      GL.Uniform1(GetUniformLocation("roughness"), Roughness);
-      GL.Uniform1(GetUniformLocation("ao"), AO);
-      GL.Uniform1(GetUniformLocation("exposure"), Exposure);
-
-      GL.Uniform3(GetUniformLocation("albedo"), Albedo);
-      GL.Uniform3(GetUniformLocation("exposure"), CameraPosition);
-
-      for (int i = 0; i < 4; i++)
-      {
-        GL.Uniform3(GetUniformLocation("lightPositions[" + i + "]"), LightPositions[i]);
-        GL.Uniform3(GetUniformLocation("lightColors[" + i + "]"), LightColors[i]);
-      }
-    }
-
   }
 }

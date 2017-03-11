@@ -1,0 +1,24 @@
+﻿<Window
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	xmlns:local="clr-namespace:ToyGame.Editor"
+	xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+	xmlns:viewModel="clr-namespace:ToyGame.Editor.PropertiesWindow.ViewModel" x:Class="ToyGame.Editor.MainWindow"
+	mc:Ignorable="d"
+	Title="MainWindow" Height="686" Width="822" WindowStartupLocation="CenterScreen" Loaded="Window_Loaded">
+	<Grid>
+		<DockPanel Margin="0,0,0,0">
+			<DockPanel DockPanel.Dock="Left" Width="200px" />
+			<TextBox x:Name="Console" DockPanel.Dock="Bottom" Height="150px" AcceptsReturn="True" Text="Console Output:"
+			         TextWrapping="Wrap" />
+			<DockPanel DockPanel.Dock="Right" Width="200px">
+
+				<viewModel:PropertiesPanel Margin="6" />
+
+			</DockPanel>
+			<WindowsFormsHost x:Name="WindowsFormHost" Initialized="WindowsFormsHost_Initialized" />
+		</DockPanel>
+	</Grid>
+</Window>

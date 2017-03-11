@@ -1,13 +1,15 @@
 ﻿using System;
 using OpenTK.Graphics.OpenGL;
+using ToyGame.Materials;
+using ToyGame.OpenGL;
+using ToyGame.Resources;
 
-namespace ToyGame
+namespace ToyGame.Gameplay
 {
   public class AStaticMesh : AActor, IRenderable
   {
-
-    public ModelResource Model;
     public Material Material;
+    public ModelResource Model;
 
     public AStaticMesh(ModelResource mesh, Material material)
     {
@@ -18,10 +20,11 @@ namespace ToyGame
     public void Render(ACamera camera)
     {
       Material.Bind(camera, Transform.GetWorldMatrix());
-      foreach (GLMesh glMesh in Model.GLMeshes)
+      foreach (var glMesh in Model.GLMeshes)
       {
         GLVertexArrayObject.FromPair(glMesh, Material.Program).Bind();
-        GL.DrawElements(PrimitiveType.Triangles, glMesh.IndexBuffer.BufferCount, DrawElementsType.UnsignedInt, IntPtr.Zero);
+        GL.DrawElements(PrimitiveType.Triangles, glMesh.IndexBuffer.BufferCount, DrawElementsType.UnsignedInt,
+          IntPtr.Zero);
       }
     }
   }

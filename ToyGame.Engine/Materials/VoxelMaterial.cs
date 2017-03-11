@@ -1,34 +1,28 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using OpenTK.Graphics.OpenGL;
-using OpenTK;
+﻿using OpenTK.Graphics.OpenGL;
+using ToyGame.OpenGL.Shaders;
+using ToyGame.Resources;
 
-namespace ToyGame
+namespace ToyGame.Materials
 {
   public class VoxelMaterial : Material
   {
-
-    public TextureResource DiffuseTexture = ResourceManager.FromPath<TextureResource>(@"C:\Users\Alec\thilenius\ToyGame\Assets\Models\AKM\textures\WPNT_AKM_BaseColor.tga");
-    public TextureResource RoughnessMetallicTexture = ResourceManager.FromPath<TextureResource>(@"C:\Users\Alec\thilenius\ToyGame\Assets\Models\AKM\textures\WPNT_AKM_RoughnessMetallic.tga");
-
-    private static VoxelShader standardShader;
+    private static VoxelShader _voxelShader;
+    public TextureResource DiffuseTexture;
+    public TextureResource MetallicRoughnessTexture;
 
     public VoxelMaterial()
     {
-      if (standardShader == null)
+      if (_voxelShader == null)
       {
-        standardShader = new VoxelShader();
+        _voxelShader = new VoxelShader();
       }
-      Program = standardShader;
+      Program = _voxelShader;
     }
 
     protected override void UpdateProgramUniforms()
     {
-      DiffuseTexture.GLTexture.Bind(TextureUnit.Texture0);
-      RoughnessMetallicTexture.GLTexture.Bind(TextureUnit.Texture1);
+      DiffuseTexture?.GLTexture.Bind(TextureUnit.Texture0);
+      MetallicRoughnessTexture?.GLTexture.Bind(TextureUnit.Texture1);
     }
   }
 }

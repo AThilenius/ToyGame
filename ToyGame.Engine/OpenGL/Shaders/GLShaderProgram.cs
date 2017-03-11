@@ -1,36 +1,39 @@
-﻿using OpenTK;
-using OpenTK.Graphics.OpenGL;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using OpenTK;
+using OpenTK.Graphics.OpenGL;
 
-namespace ToyGame
+namespace ToyGame.OpenGL.Shaders
 {
-  abstract class GLShaderProgram : IDisposable
+  internal abstract class GLShaderProgram : IDisposable
   {
-
+    protected readonly Dictionary<string, int> AttributeLocations = new Dictionary<string, int>();
+    protected readonly int Handle = GL.CreateProgram();
+    protected readonly Dictionary<string, int> UniformLocations = new Dictionary<string, int>();
+    public Matrix4 ModelMatrix = Matrix4.Identity;
     public Matrix4 ProjectionMatrix = Matrix4.Identity;
     public Matrix4 ViewMatrix = Matrix4.Identity;
-    public Matrix4 ModelMatrix = Matrix4.Identity;
 
-    protected readonly int handle = GL.CreateProgram();
-    protected readonly Dictionary<string, int> attributeLocations = new Dictionary<string, int>();
-    protected readonly Dictionary<string, int> uniformLocations = new Dictionary<string, int>();
+    public void Dispose()
+    {
+      GL.DeleteProgram(Handle);
+    }
 
     public int GetAttributeLocation(string name)
     {
       int location;
-      return attributeLocations.TryGetValue(name, out location) ? location : -1;
+      return AttributeLocations.TryGetValue(name, out location) ? location : -1;
     }
 
     public int GetUniformLocation(string name)
     {
       int location;
-      return uniformLocations.TryGetValue(name, out location) ? location : -1;
+      return UniformLocations.TryGetValue(name, out location) ? location : -1;
     }
 
     public void Use()
     {
-      GL.UseProgram(handle);
+      GL.UseProgram(Handle);
     }
 
     public virtual void BindUniforms()
@@ -40,50 +43,44 @@ namespace ToyGame
       GL.UniformMatrix4(GetUniformLocation("modelMatrix"), false, ref ModelMatrix);
     }
 
-    protected void Compile (GLShaderStage[] shaders, string[] attributes, string[] uniforms)
+    protected void Compile(GLShaderStage[] shaders, string[] attributes, string[] uniforms)
     {
-      List<string> allUniforms = new List<string>();
-      allUniforms.AddRange(new string[] { "projectionMatrix", "viewMatrix", "modelMatrix" });
+      var allUniforms = new List<string>();
+      allUniforms.AddRange(new[] {"projectionMatrix", "viewMatrix", "modelMatrix"});
       allUniforms.AddRange(uniforms);
-      foreach (GLShaderStage shader in shaders)
+      foreach (var shader in shaders)
       {
-        GL.AttachShader(handle, shader.Handle);
+        GL.AttachShader(Handle, shader.Handle);
       }
-      GL.LinkProgram(handle);
-      foreach (GLShaderStage shader in shaders)
+      GL.LinkProgram(Handle);
+      foreach (var shader in shaders)
       {
-        GL.DetachShader(handle, shader.Handle);
+        GL.DetachShader(Handle, shader.Handle);
       }
-      GL.UseProgram(handle);
+      GL.UseProgram(Handle);
       var error = GL.GetError();
       if (error != ErrorCode.NoError)
-        Console.WriteLine("Error after use: " + error.ToString());
+        Console.WriteLine("Error after use: " + error);
       // Get all Attribute locations
-      foreach (string attrib in attributes)
+      foreach (var attrib in attributes)
       {
-        int location = GL.GetAttribLocation(handle, attrib);
+        var location = GL.GetAttribLocation(Handle, attrib);
         if (location < 0)
         {
           Console.WriteLine("Failed to find the attribute [" + attrib + "] in shader GLSL.");
         }
-        attributeLocations.Add(attrib, location);
+        AttributeLocations.Add(attrib, location);
       }
       // Get all Uniform locations
-      foreach (string uniform in allUniforms)
+      foreach (var uniform in allUniforms)
       {
-        int location = GL.GetUniformLocation(handle, uniform);
+        var location = GL.GetUniformLocation(Handle, uniform);
         if (location < 0)
         {
           Console.WriteLine("Failed to find the uniform [" + uniform + "] in shader GLSL.");
         }
-        uniformLocations.Add(uniform, location);
+        UniformLocations.Add(uniform, location);
       }
     }
-
-    public void Dispose()
-    {
-      GL.DeleteProgram(handle);
-    }
-
   }
 }

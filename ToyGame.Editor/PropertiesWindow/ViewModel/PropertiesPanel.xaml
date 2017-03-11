@@ -1,0 +1,71 @@
+﻿<UserControl x:Class="ToyGame.Editor.PropertiesWindow.ViewModel.PropertiesPanel"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:ToyGame.Editor.PropertiesWindow.ViewModel"
+             mc:Ignorable="d"
+             d:DesignHeight="300" d:DesignWidth="200">
+	<StackPanel>
+		<Expander IsExpanded="True" Margin="0 0 0 10">
+			<Expander.Header>
+				<TextBlock>Transform</TextBlock>
+			</Expander.Header>
+
+			<StackPanel>
+				<!-- Position -->
+				<Grid Margin="0 2">
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition />
+						<ColumnDefinition />
+						<ColumnDefinition />
+						<ColumnDefinition />
+					</Grid.ColumnDefinitions>
+					<TextBlock Grid.Column="0" Grid.Row="0">Position</TextBlock>
+					<TextBox Margin="2 0" Background="Transparent" Grid.Column="1" />
+					<TextBox Margin="2 0" Background="Transparent" Grid.Column="2" />
+					<TextBox Margin="2 0" Background="Transparent" Grid.Column="3" />
+				</Grid>
+
+				<!-- Rotation -->
+				<Grid Margin="0 2">
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition />
+						<ColumnDefinition />
+						<ColumnDefinition />
+						<ColumnDefinition />
+					</Grid.ColumnDefinitions>
+					<TextBlock Grid.Column="0" Grid.Row="0">Rotation</TextBlock>
+					<TextBox Margin="2 0" Background="Transparent" Grid.Column="1" />
+					<TextBox Margin="2 0" Background="Transparent" Grid.Column="2" />
+					<TextBox Margin="2 0" Background="Transparent" Grid.Column="3" />
+				</Grid>
+
+				<!-- Scale -->
+				<Grid Margin="0 2">
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition />
+						<ColumnDefinition />
+						<ColumnDefinition />
+						<ColumnDefinition />
+					</Grid.ColumnDefinitions>
+					<TextBlock Grid.Column="0" Grid.Row="0">Scale</TextBlock>
+					<TextBox Margin="2 0" Background="Transparent" Grid.Column="1" />
+					<TextBox Margin="2 0" Background="Transparent" Grid.Column="2" />
+					<TextBox Margin="2 0" Background="Transparent" Grid.Column="3" />
+				</Grid>
+			</StackPanel>
+
+		</Expander>
+		<Expander IsExpanded="True" Margin="0 0 0 10">
+			<Expander.Header>
+				<TextBlock>Static Mesh</TextBlock>
+			</Expander.Header>
+			<StackPanel>
+				<Grid>
+					<TextBlock>Who the hell knows</TextBlock>
+				</Grid>
+			</StackPanel>
+		</Expander>
+	</StackPanel>
+</UserControl>

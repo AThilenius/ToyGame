@@ -1,34 +1,31 @@
-﻿using OpenTK.Graphics.OpenGL;
-using System;
+﻿using System;
+using OpenTK.Graphics.OpenGL;
 
-namespace ToyGame
+namespace ToyGame.OpenGL.Shaders
 {
-  sealed class GLShaderStage : IDisposable
+  internal sealed class GLShaderStage : IDisposable
   {
-
-    private readonly int handle;
-
-    public int Handle { get { return this.handle; } }
-
     public GLShaderStage(ShaderType type, string code)
     {
-      handle = GL.CreateShader(type);
+      Handle = GL.CreateShader(type);
       // Compile vertex shader
-      GL.ShaderSource(handle, code);
-      GL.CompileShader(handle);
+      GL.ShaderSource(Handle, code);
+      GL.CompileShader(Handle);
       string info;
-      int status_code;
-      GL.GetShaderInfoLog(handle, out info);
-      GL.GetShader(handle, ShaderParameter.CompileStatus, out status_code);
-      if (status_code != 1)
+      int statusCode;
+      GL.GetShaderInfoLog(Handle, out info);
+      GL.GetShader(Handle, ShaderParameter.CompileStatus, out statusCode);
+      if (statusCode != 1)
       {
         throw new ApplicationException(info);
       }
     }
 
+    public int Handle { get; }
+
     public void Dispose()
     {
-      GL.DeleteShader(handle);
+      GL.DeleteShader(Handle);
     }
   }
 }

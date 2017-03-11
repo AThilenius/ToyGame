@@ -1,18 +1,21 @@
-﻿using OpenTK;
-using OpenTK.Graphics.OpenGL;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using OpenTK.Graphics.OpenGL;
 
-namespace ToyGame
+namespace ToyGame.OpenGL.Shaders
 {
-  class StandardShader : GLShaderProgram
+  internal class StandardShader : GLShaderProgram
   {
+    // Uniforms
+
+    public StandardShader()
+    {
+      Compile(new[] {_vertexShader, _fragmentShader},
+        new[] {"position", "uv0", "normal"},
+        new string[0]);
+    }
 
     #region ShaderGLSL
-    private GLShaderStage vertexShader = new GLShaderStage(ShaderType.VertexShader,
+
+    private readonly GLShaderStage _vertexShader = new GLShaderStage(ShaderType.VertexShader,
       @"#version 420
         in vec3 position;
         in vec2 uv0;
@@ -34,7 +37,7 @@ namespace ToyGame
             gl_Position =  projectionMatrix * viewMatrix * vec4(WorldPos, 1.0);
         }");
 
-    private GLShaderStage fragmentShader = new GLShaderStage(ShaderType.FragmentShader,
+    private readonly GLShaderStage _fragmentShader = new GLShaderStage(ShaderType.FragmentShader,
       @"#version 420
         out vec4 FragColor;
         in vec2 TexCoords;
@@ -189,16 +192,7 @@ namespace ToyGame
 
             FragColor = vec4(color, 1.0);
         }");
+
     #endregion
-
-    // Uniforms
-
-    public StandardShader()
-    {
-      Compile(new GLShaderStage[] { vertexShader, fragmentShader },
-          new string[] { "position", "uv0", "normal" },
-          new string[0]);
-    }
-
   }
 }

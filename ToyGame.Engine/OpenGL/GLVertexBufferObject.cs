@@ -1,42 +1,40 @@
 using System;
-using OpenTK.Graphics.OpenGL;
 using System.Runtime.InteropServices;
+using OpenTK.Graphics.OpenGL;
 
-namespace ToyGame
+namespace ToyGame.OpenGL
 {
-  sealed class GLVertexBufferObject : IDisposable
+  internal sealed class GLVertexBufferObject : IDisposable
   {
-
-    public readonly GLVertexAttribute[] VertexAttributes;
     public readonly int BufferCount;
-
-    private readonly int handle = GL.GenBuffer();
-    private readonly BufferTarget target;
+    private readonly int _handle = GL.GenBuffer();
+    private readonly BufferTarget _target;
+    public readonly GLVertexAttribute[] VertexAttributes;
 
     private GLVertexBufferObject(BufferTarget bufferTarget, GLVertexAttribute[] vertexAttributes, int bufferCount)
     {
       VertexAttributes = vertexAttributes;
-      target = bufferTarget;
+      _target = bufferTarget;
       BufferCount = bufferCount;
     }
 
-    public static GLVertexBufferObject FromData<T>(T[] data, BufferTarget bufferTarget, BufferUsageHint bufferUsageHint, params GLVertexAttribute[] vertexAttributes) where T : struct
+    public void Dispose()
     {
-      GLVertexBufferObject vbo = new GLVertexBufferObject(bufferTarget, vertexAttributes, data.Length);
+      GL.DeleteBuffer(_handle);
+    }
+
+    public static GLVertexBufferObject FromData<T>(T[] data, BufferTarget bufferTarget, BufferUsageHint bufferUsageHint,
+      params GLVertexAttribute[] vertexAttributes) where T : struct
+    {
+      var vbo = new GLVertexBufferObject(bufferTarget, vertexAttributes, data.Length);
       vbo.Bind();
-      GL.BufferData(bufferTarget, (IntPtr) (Marshal.SizeOf(typeof(T)) * data.Length), data, bufferUsageHint);
+      GL.BufferData(bufferTarget, (IntPtr) (Marshal.SizeOf(typeof (T))*data.Length), data, bufferUsageHint);
       return vbo;
     }
 
     public void Bind()
     {
-      GL.BindBuffer(target, handle);
+      GL.BindBuffer(_target, _handle);
     }
-
-    public void Dispose()
-    {
-      GL.DeleteBuffer(handle);
-    }
-
   }
 }

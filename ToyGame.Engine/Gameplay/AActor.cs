@@ -1,32 +1,46 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
-namespace ToyGame
+namespace ToyGame.Gameplay
 {
   public class AActor
   {
-
+    private readonly List<AActor> _children = new List<AActor>();
+    private ULevel _level;
+    private AActor _parent;
     public UTransform Transform;
-    public AActor Parent { get { return parent; } set { SetParent(value); } }
-    public IReadOnlyCollection<AActor> Children { get { return children.AsReadOnly(); } }
-    public ULevel Level { get { return level; } set { level = value; children.ForEach(c => c.Level = value); } }
-
-    private List<AActor> children = new List<AActor>();
-    private ULevel level;
-
-    private AActor parent;
 
     public AActor()
     {
       Transform = new UTransform(this);
     }
 
+    public AActor Parent
+    {
+      get { return _parent; }
+      set { SetParent(value); }
+    }
+
+    public IReadOnlyCollection<AActor> Children
+    {
+      get { return _children.AsReadOnly(); }
+    }
+
+    public ULevel Level
+    {
+      get { return _level; }
+      set
+      {
+        _level = value;
+        _children.ForEach(c => c.Level = value);
+      }
+    }
+
     public List<T> GetInstancesOf<T>(bool recursive = true) where T : AActor
     {
-      List<T> instances = new List<T>();
-      foreach (AActor child in children)
+      var instances = new List<T>();
+      foreach (var child in _children)
       {
-        if (typeof(T).IsAssignableFrom(child.GetType()))
+        if (typeof (T).IsAssignableFrom(child.GetType()))
         {
           instances.Add((T) child);
         }
@@ -40,17 +54,16 @@ namespace ToyGame
 
     private void SetParent(AActor actor)
     {
-      if (parent != null)
+      if (_parent != null)
       {
-        parent.children.Remove(actor);
+        _parent._children.Remove(actor);
       }
-      parent = actor;
-      Level = parent.Level;
+      _parent = actor;
+      Level = _parent.Level;
       if (actor != null)
       {
-        parent.children.Add(this);
+        _parent._children.Add(this);
       }
     }
-
   }
 }

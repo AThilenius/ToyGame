@@ -1,21 +1,14 @@
 ﻿using OpenTK;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace ToyGame
+namespace ToyGame.Gameplay
 {
   public class ACamera : AActor
   {
-
-    public Matrix4 ProjectionMatrix { get; private set; }
-    public Matrix4 ViewMatrix { get; private set; }
-
+    public float AspectRatio = 16.0f/9.0f;
     // Default 75 degree FOV
     public float FieldOfView = 1.309f;
-    public float AspectRatio = 16.0f / 9.0f;
+    public Matrix4 ProjectionMatrix { get; private set; }
+    public Matrix4 ViewMatrix { get; private set; }
 
     public void PreRender()
     {
@@ -23,6 +16,5 @@ namespace ToyGame
       Transform.Scale = Vector3.One;
       ViewMatrix = Transform.GetWorldMatrix();
     }
-
   }
 }

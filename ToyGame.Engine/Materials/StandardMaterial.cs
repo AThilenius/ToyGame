@@ -1,38 +1,32 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using OpenTK.Graphics.OpenGL;
-using OpenTK;
+﻿using OpenTK.Graphics.OpenGL;
+using ToyGame.OpenGL.Shaders;
+using ToyGame.Resources;
 
-namespace ToyGame
+namespace ToyGame.Materials
 {
   public class StandardMaterial : Material
   {
-
-    public TextureResource DiffuseTexture = ResourceManager.FromPath<TextureResource>(@"C:\Users\Alec\thilenius\ToyGame\Assets\Models\AKM\textures\WPNT_AKM_BaseColor.tga");
-    public TextureResource NormalTexture = ResourceManager.FromPath<TextureResource>(@"C:\Users\Alec\thilenius\ToyGame\Assets\Models\AKM\textures\WPNT_AKM_Normal.tga");
-    public TextureResource RoughnessMetallicTexture = ResourceManager.FromPath<TextureResource>(@"C:\Users\Alec\thilenius\ToyGame\Assets\Models\AKM\textures\WPNT_AKM_RoughnessMetallic.tga");
-    public TextureResource AmbientOcclusionTexture = ResourceManager.FromPath<TextureResource>(@"C:\Users\Alec\thilenius\ToyGame\Assets\Models\AKM\textures\WPNT_AKM_Ambient_occlusion.tga");
-
-    private static StandardShader standardShader;
+    private static StandardShader _standardShader;
+    public TextureResource AmbientOcclusionTexture;
+    public TextureResource DiffuseTexture;
+    public TextureResource NormalTexture;
+    public TextureResource RoughnessMetallicTexture;
 
     public StandardMaterial()
     {
-      if (standardShader == null)
+      if (_standardShader == null)
       {
-        standardShader = new StandardShader();
+        _standardShader = new StandardShader();
       }
-      Program = standardShader;
+      Program = _standardShader;
     }
 
     protected override void UpdateProgramUniforms()
     {
-      DiffuseTexture.GLTexture.Bind(TextureUnit.Texture0);
-      NormalTexture.GLTexture.Bind(TextureUnit.Texture1);
-      RoughnessMetallicTexture.GLTexture.Bind(TextureUnit.Texture2);
-      AmbientOcclusionTexture.GLTexture.Bind(TextureUnit.Texture3);
+      DiffuseTexture?.GLTexture.Bind(TextureUnit.Texture0);
+      NormalTexture?.GLTexture.Bind(TextureUnit.Texture1);
+      RoughnessMetallicTexture?.GLTexture.Bind(TextureUnit.Texture2);
+      AmbientOcclusionTexture?.GLTexture.Bind(TextureUnit.Texture3);
     }
   }
 }

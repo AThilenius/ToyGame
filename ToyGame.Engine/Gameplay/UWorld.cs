@@ -1,22 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace ToyGame
+namespace ToyGame.Gameplay
 {
   public class UWorld
   {
-
+    private readonly List<ULevel> _levels = new List<ULevel>();
     public ACamera MainCamera;
-    public IReadOnlyCollection<ULevel> Levels { get { return levels.AsReadOnly(); } }
 
-    List<ULevel> levels = new List<ULevel>();
+    public IReadOnlyCollection<ULevel> Levels => _levels.AsReadOnly();
 
     public void AddLevel(ULevel level)
     {
-      levels.Add(level);
+      _levels.Add(level);
       level.World = this;
     }
 
@@ -26,9 +23,9 @@ namespace ToyGame
       {
         // Just use the first camera we can find. At some point this will all
         // be gutted for a 'Pawn' based control system.
-        foreach (ULevel level in levels)
+        foreach (var level in _levels)
         {
-          List<ACamera> cameras = level.GetInstancesOf<ACamera>();
+          var cameras = level.GetInstancesOf<ACamera>();
           if (cameras.Count() > 0)
           {
             MainCamera = cameras[0];
@@ -42,8 +39,7 @@ namespace ToyGame
         }
       }
       MainCamera.PreRender();
-      levels.ForEach(level => level.DrawAll(MainCamera));
+      _levels.ForEach(level => level.DrawAll(MainCamera));
     }
-
   }
 }

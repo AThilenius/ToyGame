@@ -1,49 +1,50 @@
-﻿using OpenTK;
-using OpenTK.Graphics;
-using System;
-using System.Collections.Generic;
+﻿using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Assimp;
-using System.Diagnostics;
-using System.IO;
-using Assimp;
+using OpenTK;
+using OpenTK.Graphics.OpenGL;
+using ToyGame.OpenGL;
+using ToyGame.Resources.DataBlocks;
 
-namespace ToyGame
+namespace ToyGame.Resources
 {
   public class ModelResource : Resource
   {
+    #region Fields / Properties
 
-    public string Name;
+    internal GLMesh[] GLMeshes;
 
-    internal List<GLMesh> GLMeshes = new List<GLMesh>();
+    #endregion
 
-    private ModelResource(string path)
-      : base(path, ResourceType.Mesh)
+    internal ModelResource(ResourceBundle bundle) : base(bundle)
     {
+      DataBlock = new ModelDataBlock();
     }
 
-    internal static Resource LoadSync(AssimpContext importer, string path)
+    public override void ImportFromFullPath(string fullPath)
     {
-      ModelResource meshResource = new ModelResource(path);
-      meshResource.Name = Path.GetFileNameWithoutExtension(path);
-      Scene scene = importer.ImportFile(path, PostProcessPreset.TargetRealTimeMaximumQuality);
-
-      foreach (Mesh mesh in scene.Meshes)
-      {
-        Vector3[] positions = mesh.Vertices.Select(v => new Vector3(v.X, v.Z, v.Y)).ToArray();
-        uint[] indexes = mesh.Faces.SelectMany(f => f.Indices).Select(i => (uint) i).ToArray();
-        Vector3[] normals = mesh.Normals.Select(n => new Vector3(n.X, n.Z, n.Y)).ToArray();
-        Vector2[] uv0 = mesh.TextureCoordinateChannels[0].Select(uv => new Vector2(uv.X, uv.Y)).ToArray();
-        // Not currently loaded
-        Vector2[] uv1;
-        // Not currently loaded
-        Color4[] colors;
-        meshResource.GLMeshes.Add(new GLMesh(positions, indexes, normals, uv0, null, null, OpenTK.Graphics.OpenGL.BufferUsageHint.StaticDraw));
-      }
-      return meshResource;
+      base.ImportFromFullPath(fullPath);
+      var assimpContext = new AssimpContext();
+      var scene = assimpContext.ImportFile(fullPath, PostProcessPreset.TargetRealTimeMaximumQuality);
+      ((ModelDataBlock) DataBlock).ModelParts = scene.Meshes
+        .Where(aMesh => aMesh.Vertices.Count > 0)
+        .Select(aMesh => new ModelPart
+        {
+          Name = aMesh.Name,
+          Positions = aMesh.Vertices.Select(v => new Vector3(v.X, v.Z, v.Y)).ToArray(),
+          Indexes = aMesh.Faces.SelectMany(f => f.Indices).Select(i => (uint) i).ToArray(),
+          Normals = aMesh.Normals.Select(n => new Vector3(n.X, n.Z, n.Y)).ToArray(),
+          Uv0 = aMesh.TextureCoordinateChannels[0].Select(uv => new Vector2(uv.X, uv.Y)).ToArray()
+          // UV1 and Colors not currently loaded
+        }).ToArray();
+      ((ModelDataBlock) DataBlock).Name = Path.GetFileNameWithoutExtension(fullPath);
     }
 
+    internal override void LoadToGpu()
+    {
+      GLMeshes = ((ModelDataBlock) DataBlock).ModelParts.Select(part => new GLMesh(
+        part.Positions, part.Indexes, part.Normals, part.Uv0, part.Uv1, part.Colors,
+        BufferUsageHint.StaticDraw)).ToArray();
+    }
   }
 }
