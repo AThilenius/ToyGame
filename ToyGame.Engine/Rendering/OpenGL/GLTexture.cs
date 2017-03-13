@@ -1,9 +1,9 @@
 ﻿using System;
 using OpenTK.Graphics.OpenGL;
 
-namespace ToyGame.OpenGL
+namespace ToyGame.Rendering.OpenGL
 {
-  internal sealed class GLTexture : IDisposable
+  internal sealed class GLTexture : IDisposable, IComparable<GLTexture>
   {
     private readonly int _handle = GL.GenTexture();
 
@@ -45,6 +45,11 @@ namespace ToyGame.OpenGL
       }
       GL.BindTexture(textureParams.Target, 0);
       return texture;
+    }
+
+    public int CompareTo(GLTexture other)
+    {
+      return _handle.CompareTo(other._handle);
     }
   }
 }

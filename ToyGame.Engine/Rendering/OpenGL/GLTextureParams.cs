@@ -1,6 +1,6 @@
 ﻿using OpenTK.Graphics.OpenGL;
 
-namespace ToyGame.OpenGL
+namespace ToyGame.Rendering.OpenGL
 {
   internal class GLTextureParams
   {

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using ToyGame.Rendering;
 
 namespace ToyGame.Gameplay
 {
@@ -30,26 +31,20 @@ namespace ToyGame.Gameplay
       return instances;
     }
 
-    public void DrawAll(ACamera camera)
+    public void EnqueueDrawCalls(RenderCore renderCore, ACamera camera)
     {
       foreach (var actor in _actors)
       {
-        DrawActor(actor, camera);
+        EnqueueDrawCalls(renderCore, actor, camera);
       }
     }
 
-    public void DrawActor(AActor actor, ACamera camera, bool recursive = true)
+    public void EnqueueDrawCalls(RenderCore renderCore, AActor actor, ACamera camera)
     {
-      if (actor is IRenderable)
+      (actor as IRenderable)?.EnqueueDrawCalls(renderCore, camera);
+      foreach (var child in actor.Children)
       {
-        (actor as IRenderable).Render(camera);
-      }
-      if (recursive)
-      {
-        foreach (var child in actor.Children)
-        {
-          DrawActor(child, camera, recursive);
-        }
+        EnqueueDrawCalls(renderCore, child, camera);
       }
     }
   }

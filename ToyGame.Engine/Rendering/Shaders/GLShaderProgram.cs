@@ -3,16 +3,13 @@ using System.Collections.Generic;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
-namespace ToyGame.OpenGL.Shaders
+namespace ToyGame.Rendering.Shaders
 {
-  internal abstract class GLShaderProgram : IDisposable
+  internal abstract class GLShaderProgram : IDisposable, IComparable<GLShaderProgram>
   {
     protected readonly Dictionary<string, int> AttributeLocations = new Dictionary<string, int>();
     protected readonly int Handle = GL.CreateProgram();
     protected readonly Dictionary<string, int> UniformLocations = new Dictionary<string, int>();
-    public Matrix4 ModelMatrix = Matrix4.Identity;
-    public Matrix4 ProjectionMatrix = Matrix4.Identity;
-    public Matrix4 ViewMatrix = Matrix4.Identity;
 
     public void Dispose()
     {
@@ -34,13 +31,6 @@ namespace ToyGame.OpenGL.Shaders
     public void Use()
     {
       GL.UseProgram(Handle);
-    }
-
-    public virtual void BindUniforms()
-    {
-      GL.UniformMatrix4(GetUniformLocation("projectionMatrix"), false, ref ProjectionMatrix);
-      GL.UniformMatrix4(GetUniformLocation("viewMatrix"), false, ref ViewMatrix);
-      GL.UniformMatrix4(GetUniformLocation("modelMatrix"), false, ref ModelMatrix);
     }
 
     protected void Compile(GLShaderStage[] shaders, string[] attributes, string[] uniforms)
@@ -81,6 +71,11 @@ namespace ToyGame.OpenGL.Shaders
         }
         UniformLocations.Add(uniform, location);
       }
+    }
+
+    public int CompareTo(GLShaderProgram other)
+    {
+      return Handle.CompareTo(other.Handle);
     }
   }
 }

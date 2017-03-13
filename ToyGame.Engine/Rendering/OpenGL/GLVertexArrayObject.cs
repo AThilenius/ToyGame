@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using OpenTK.Graphics.OpenGL;
-using ToyGame.OpenGL.Shaders;
+using ToyGame.Rendering.Shaders;
 
-namespace ToyGame.OpenGL
+namespace ToyGame.Rendering.OpenGL
 {
-  internal sealed class GLVertexArrayObject : IDisposable
+  internal sealed class GLVertexArrayObject : IDisposable, IComparable<GLVertexArrayObject>
   {
     private static readonly Dictionary<Tuple<GLMesh, GLShaderProgram>, GLVertexArrayObject> ExistingBuffers =
       new Dictionary<Tuple<GLMesh, GLShaderProgram>, GLVertexArrayObject>();
@@ -54,6 +54,11 @@ namespace ToyGame.OpenGL
         _activeVertexArray = this;
         GL.BindVertexArray(_handle);
       }
+    }
+
+    public int CompareTo(GLVertexArrayObject other)
+    {
+      return _handle.CompareTo(other._handle);
     }
   }
 }

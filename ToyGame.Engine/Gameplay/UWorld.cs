@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using ToyGame.Rendering;
 
 namespace ToyGame.Gameplay
 {
@@ -17,7 +18,7 @@ namespace ToyGame.Gameplay
       level.World = this;
     }
 
-    public void Render()
+    public void EnqueueDrawCalls(RenderCore renderCore)
     {
       if (MainCamera == null)
       {
@@ -39,7 +40,7 @@ namespace ToyGame.Gameplay
         }
       }
       MainCamera.PreRender();
-      _levels.ForEach(level => level.DrawAll(MainCamera));
+      _levels.ForEach(level => level.EnqueueDrawCalls(renderCore, MainCamera));
     }
   }
 }

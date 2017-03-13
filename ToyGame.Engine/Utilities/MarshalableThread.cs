@@ -15,7 +15,7 @@ namespace ToyGame.Utilities
 
     public static readonly MarshalableThread FileIoThread = new MarshalableThread();
     public static readonly MarshalableThread GpuInterfaceThread = new MarshalableThread();
-    private readonly BlockingCollection<Action> _actions = new BlockingCollection<Action>();
+    protected readonly BlockingCollection<Action> _actions = new BlockingCollection<Action>();
 
     #endregion
 

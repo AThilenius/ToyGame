@@ -59,7 +59,7 @@ namespace ToyGame.Utilities
     /// <param name="message">The message to send to all observers.</param>
     public void Push<T>(T message) where T : struct
     {
-      var targets = _channels.GetOrAdd(typeof(T), t => new ConcurrentQueue<InvocationTarget>());
+      var targets = _channels.GetOrAdd(typeof (T), t => new ConcurrentQueue<InvocationTarget>());
       // Copy targets to a local array so we don't have to hold the lock the entire time we
       // are invoking all the handlers.
       foreach (var target in targets.ToArray())

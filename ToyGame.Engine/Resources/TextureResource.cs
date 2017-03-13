@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 using FreeImageAPI;
-using ToyGame.OpenGL;
+using ToyGame.Rendering.OpenGL;
 using ToyGame.Resources.DataBlocks;
 
 namespace ToyGame.Resources

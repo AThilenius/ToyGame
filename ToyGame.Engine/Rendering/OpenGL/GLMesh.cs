@@ -5,7 +5,7 @@ using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 
-namespace ToyGame.OpenGL
+namespace ToyGame.Rendering.OpenGL
 {
   /// <summary>
   ///   Represents the set of VBO and IVO buffers needed to render a model (position, normal, uv, index...).

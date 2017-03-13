@@ -1,7 +1,7 @@
 ﻿using OpenTK.Graphics.OpenGL;
-using ToyGame.OpenGL.Shaders;
+using ToyGame.Rendering.Shaders;
 
-namespace ToyGame.OpenGL
+namespace ToyGame.Rendering.OpenGL
 {
   internal sealed class GLVertexAttribute
   {

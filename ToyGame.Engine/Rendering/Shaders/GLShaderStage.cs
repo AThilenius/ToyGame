@@ -1,7 +1,7 @@
 ﻿using System;
 using OpenTK.Graphics.OpenGL;
 
-namespace ToyGame.OpenGL.Shaders
+namespace ToyGame.Rendering.Shaders
 {
   internal sealed class GLShaderStage : IDisposable
   {

@@ -7,7 +7,7 @@
 	xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
 	xmlns:viewModel="clr-namespace:ToyGame.Editor.PropertiesWindow.ViewModel" x:Class="ToyGame.Editor.MainWindow"
 	mc:Ignorable="d"
-	Title="MainWindow" Height="686" Width="822" WindowStartupLocation="CenterScreen" Loaded="Window_Loaded">
+	Title="MainWindow" Height="686" Width="822" WindowStartupLocation="CenterScreen" Loaded="Window_Loaded" Closing="Window_Closing">
 	<Grid>
 		<DockPanel Margin="0,0,0,0">
 			<DockPanel DockPanel.Dock="Left" Width="200px" />

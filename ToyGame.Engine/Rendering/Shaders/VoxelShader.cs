@@ -1,22 +1,32 @@
-﻿using OpenTK.Graphics.OpenGL;
+﻿using OpenTK;
+using OpenTK.Graphics.OpenGL;
 
-namespace ToyGame.OpenGL.Shaders
+namespace ToyGame.Rendering.Shaders
 {
-  internal class StandardShader : GLShaderProgram
+  internal class VoxelShader : GLShaderProgram
   {
-    // Uniforms
-
-    public StandardShader()
+    public VoxelShader()
     {
       Compile(new[] {_vertexShader, _fragmentShader},
         new[] {"position", "uv0", "normal"},
-        new string[0]);
+        new[]
+        {
+          "camPos", "exposure",
+          "lightPositions[0]",
+          "lightPositions[1]",
+          "lightPositions[2]",
+          "lightPositions[3]",
+          "lightColors[0]",
+          "lightColors[1]",
+          "lightColors[2]",
+          "lightColors[3]"
+        });
     }
 
     #region ShaderGLSL
 
-    private readonly GLShaderStage _vertexShader = new GLShaderStage(ShaderType.VertexShader,
-      @"#version 420
+    private readonly GLShaderStage _vertexShader = new GLShaderStage(ShaderType.VertexShader, @"
+        #version 420
         in vec3 position;
         in vec2 uv0;
         in vec3 normal;
@@ -33,57 +43,30 @@ namespace ToyGame.OpenGL.Shaders
         {
             TexCoords = uv0;
             WorldPos = vec3(modelMatrix * vec4(position, 1.0f));
-            Normal = mat3(modelMatrix) * normal;   
+            //Normal = mat3(modelMatrix) * normal;
+            Normal = mat3(transpose(inverse(modelMatrix))) * normal;
             gl_Position =  projectionMatrix * viewMatrix * vec4(WorldPos, 1.0);
         }");
 
-    private readonly GLShaderStage _fragmentShader = new GLShaderStage(ShaderType.FragmentShader,
-      @"#version 420
+    private readonly GLShaderStage _fragmentShader = new GLShaderStage(ShaderType.FragmentShader, @"
+        #version 420 core
         out vec4 FragColor;
         in vec2 TexCoords;
         in vec3 WorldPos;
         in vec3 Normal;
-        in mat3 TBN;
 
-        // material parameters
+        // Material parameters
         layout(binding=0) uniform sampler2D albedoMap;
-        layout(binding=1) uniform sampler2D normalMap;
-        layout(binding=2) uniform sampler2D roughnessMetallicMap;
-        layout(binding=3) uniform sampler2D aoMap;
+        layout(binding=1) uniform sampler2D metallicRoughnessMap;
 
-        // lights
-// DEBUG
-        //uniform vec3 lightPositions[4];
-        //uniform vec3 lightColors[4];
-        //uniform vec3 camPos;
+        // Lights
+        uniform vec3 lightPositions[4];
+        uniform vec3 lightColors[4];
 
-        const vec3 lightPositions[4] = vec3[4](vec3(0, 10, 10), vec3(0, 0, 0), vec3(0, 0, 0), vec3(0, 0, 0));
-        const vec3 lightColors[4] = vec3[4](vec3(150, 150, 150), vec3(0, 0, 0), vec3(0, 0, 0), vec3(0, 0, 0));
-        const vec3 camPos = vec3(0, 0, 0);
-// DEBUG
+        uniform vec3 camPos;
+        uniform float exposure;
 
         const float PI = 3.14159265359;
-        // ----------------------------------------------------------------------------
-        // Easy trick to get tangent-normals to world-space to keep PBR code simplified.
-        // Don't worry if you don't get what's going on; you generally want to do normal 
-        // mapping the usual way for performance anways; I do plan make a note of this 
-        // technique somewhere later in the normal mapping tutorial.
-        vec3 getNormalFromMap()
-        {
-            vec3 tangentNormal = texture(normalMap, TexCoords).xyz * 2.0 - 1.0;
-
-            vec3 Q1  = dFdx(WorldPos);
-            vec3 Q2  = dFdy(WorldPos);
-            vec2 st1 = dFdx(TexCoords);
-            vec2 st2 = dFdy(TexCoords);
-
-            vec3 N   = normalize(Normal);
-            vec3 T  = normalize(Q1*st2.t - Q2*st1.t);
-            vec3 B  = -normalize(cross(N, T));
-            mat3 TBN = mat3(T, B, N);
-
-            return normalize(TBN * tangentNormal);
-        }
         // ----------------------------------------------------------------------------
         float DistributionGGX(vec3 N, vec3 H, float roughness)
         {
@@ -127,12 +110,14 @@ namespace ToyGame.OpenGL.Shaders
         // ----------------------------------------------------------------------------
         void main()
         {		
-            vec3 albedo     = pow(texture(albedoMap, TexCoords).rgb, vec3(2.2));
-            float metallic  = texture(roughnessMetallicMap, TexCoords).r;
-            float roughness = texture(roughnessMetallicMap, TexCoords).g;
-            float ao        = texture(aoMap, TexCoords).r;
+            // For now, don't gamma correct the albedo. Looks more cartoony then.
+            // vec3 albedo = pow(texture(albedoMap, TexCoords).rgb, vec3(2.2));
+            vec3 albedo = texture(albedoMap, TexCoords).rgb;
+            vec2 metallicRoughness = texture(metallicRoughnessMap, TexCoords).rg;
+            float roughness = metallicRoughness.r;
+            float metallic  = metallicRoughness.g;
 
-            vec3 N = getNormalFromMap();
+            vec3 N = normalize(Normal);
             vec3 V = normalize(camPos - WorldPos);
 
             // calculate reflectance at normal incidence; if dia-electric (like plastic) use F0 
@@ -142,7 +127,6 @@ namespace ToyGame.OpenGL.Shaders
 
             // reflectance equation
             vec3 Lo = vec3(0.0);
-
             for(int i = 0; i < 4; ++i) 
             {
                 // calculate per-light radiance
@@ -181,8 +165,8 @@ namespace ToyGame.OpenGL.Shaders
             
             // ambient lighting (note that the next IBL tutorial will replace 
             // this ambient lighting with environment lighting).
-            vec3 ambient = vec3(0.03) * albedo * ao;
-            
+            vec3 ambient = vec3(0.03) * albedo;
+
             vec3 color = ambient + Lo;
 
             // HDR tonemapping

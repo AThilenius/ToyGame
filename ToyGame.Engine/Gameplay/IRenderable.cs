@@ -1,7 +1,9 @@
-﻿namespace ToyGame.Gameplay
+﻿using ToyGame.Rendering;
+
+namespace ToyGame.Gameplay
 {
   public interface IRenderable
   {
-    void Render(ACamera camera);
+    void EnqueueDrawCalls(RenderCore renderCore, ACamera camera);
   }
 }

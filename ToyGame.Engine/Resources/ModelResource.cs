@@ -3,7 +3,7 @@ using System.Linq;
 using Assimp;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
-using ToyGame.OpenGL;
+using ToyGame.Rendering.OpenGL;
 using ToyGame.Resources.DataBlocks;
 
 namespace ToyGame.Resources

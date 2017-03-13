@@ -2,7 +2,7 @@ using System;
 using System.Runtime.InteropServices;
 using OpenTK.Graphics.OpenGL;
 
-namespace ToyGame.OpenGL
+namespace ToyGame.Rendering.OpenGL
 {
   internal sealed class GLVertexBufferObject : IDisposable
   {

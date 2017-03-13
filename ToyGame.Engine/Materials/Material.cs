@@ -1,8 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using OpenTK;
 using ProtoBuf;
 using ToyGame.Gameplay;
-using ToyGame.OpenGL.Shaders;
+using ToyGame.Rendering;
+using ToyGame.Rendering.Shaders;
+using ToyGame.Rendering.OpenGL;
+using OpenTK.Graphics.OpenGL;
 
 namespace ToyGame.Materials
 {
@@ -12,15 +16,23 @@ namespace ToyGame.Materials
   {
     internal GLShaderProgram Program;
 
-    public void Bind(ACamera camera, Matrix4 modelMatrix)
+    internal virtual GLDrawCall.UniformBind[] GenerateUniformBinds (ACamera camera, Matrix4 modelMatrix)
     {
-      Program.Use();
-      Program.ProjectionMatrix = camera.ProjectionMatrix;
-      Program.ViewMatrix = camera.ViewMatrix;
-      Program.ModelMatrix = modelMatrix;
-      UpdateProgramUniforms();
-      Program.BindUniforms();
+      // Copy the values to local (closures box structs, so make a copy here)
+      var projectionMatrix = camera.ProjectionMatrix;
+      var viewMatrix = camera.ViewMatrix;
+      return new[]
+      {
+        new GLDrawCall.UniformBind("projectionMatrix-" + projectionMatrix.ToString(), () =>
+          GL.UniformMatrix4(Program.GetUniformLocation("projectionMatrix"), false, ref projectionMatrix)),
+        new GLDrawCall.UniformBind("viewMatrix-" + viewMatrix.ToString(), () =>
+          GL.UniformMatrix4(Program.GetUniformLocation("viewMatrix"), false, ref viewMatrix)),
+        new GLDrawCall.UniformBind("modelMatrix-" + modelMatrix.ToString(), () =>
+          GL.UniformMatrix4(Program.GetUniformLocation("modelMatrix"), false, ref modelMatrix))
+      };
     }
+
+    internal abstract GLDrawCall.GLTextureBind[] GenerateTexturebinds();
 
     protected abstract void UpdateProgramUniforms();
   }
