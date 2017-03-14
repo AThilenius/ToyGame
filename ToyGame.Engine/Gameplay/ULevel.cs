@@ -5,11 +5,13 @@ namespace ToyGame.Gameplay
 {
   public class ULevel
   {
-    private readonly List<AActor> _actors = new List<AActor>();
+    #region Fields / Properties
 
     public IReadOnlyCollection<AActor> Actors => _actors.AsReadOnly();
-
     public UWorld World { get; internal set; }
+    private readonly List<AActor> _actors = new List<AActor>();
+
+    #endregion
 
     public void AddActor(AActor actor)
     {

@@ -4,25 +4,19 @@ namespace ToyGame.Gameplay
 {
   public class AActor
   {
-    private readonly List<AActor> _children = new List<AActor>();
-    private ULevel _level;
-    private AActor _parent;
-    public UTransform Transform;
+    #region Fields / Properties
 
-    public AActor()
+    public IReadOnlyCollection<AActor> Children
     {
-      Transform = new UTransform(this);
+      get { return _children.AsReadOnly(); }
     }
+
+    public UTransform Transform;
 
     public AActor Parent
     {
       get { return _parent; }
       set { SetParent(value); }
-    }
-
-    public IReadOnlyCollection<AActor> Children
-    {
-      get { return _children.AsReadOnly(); }
     }
 
     public ULevel Level
@@ -33,6 +27,17 @@ namespace ToyGame.Gameplay
         _level = value;
         _children.ForEach(c => c.Level = value);
       }
+    }
+
+    private readonly List<AActor> _children = new List<AActor>();
+    private ULevel _level;
+    private AActor _parent;
+
+    #endregion
+
+    public AActor()
+    {
+      Transform = new UTransform(this);
     }
 
     public List<T> GetInstancesOf<T>(bool recursive = true) where T : AActor

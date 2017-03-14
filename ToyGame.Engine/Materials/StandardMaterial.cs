@@ -1,6 +1,5 @@
-﻿using OpenTK;
-using OpenTK.Graphics.OpenGL;
-using ToyGame.Gameplay;
+﻿using OpenTK.Graphics.OpenGL;
+using ToyGame.Rendering;
 using ToyGame.Rendering.OpenGL;
 using ToyGame.Rendering.Shaders;
 using ToyGame.Resources;
@@ -15,25 +14,17 @@ namespace ToyGame.Materials
     public TextureResource DiffuseTexture;
     public TextureResource NormalTexture;
     public TextureResource RoughnessMetallicTexture;
-    private static StandardShader _standardShader;
+    private static GLStandardShader _glStandardShader;
 
     #endregion
 
-    public StandardMaterial()
+    public StandardMaterial(RenderCore renderCore)
     {
-      if (_standardShader == null)
+      if (_glStandardShader == null)
       {
-        _standardShader = new StandardShader();
+        _glStandardShader = new GLStandardShader(renderCore);
       }
-      Program = _standardShader;
-    }
-
-    protected override void UpdateProgramUniforms()
-    {
-      DiffuseTexture?.GLTexture.Bind(TextureUnit.Texture0);
-      NormalTexture?.GLTexture.Bind(TextureUnit.Texture1);
-      RoughnessMetallicTexture?.GLTexture.Bind(TextureUnit.Texture2);
-      AmbientOcclusionTexture?.GLTexture.Bind(TextureUnit.Texture3);
+      Program = _glStandardShader;
     }
 
     internal override GLDrawCall.GLTextureBind[] GenerateTexturebinds()

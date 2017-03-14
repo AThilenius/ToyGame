@@ -5,10 +5,14 @@ namespace ToyGame.Rendering.OpenGL
 {
   internal class DeferredPipline
   {
+    #region Fields / Properties
+
     private readonly int _gDiffuseSpecBuffer = GL.GenTexture();
     private readonly int _gFrameBuffer = GL.GenFramebuffer();
     private readonly int _gNormalbuffer = GL.GenTexture();
     private readonly int _gPositionBuffer = GL.GenTexture();
+
+    #endregion
 
     public DeferredPipline(int screenWidth, int screenHeight)
     {

@@ -1,5 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Diagnostics;
+using System.Threading;
 using OpenTK.Graphics.OpenGL;
 using ToyGame.Rendering.Shaders;
 
@@ -7,58 +8,55 @@ namespace ToyGame.Rendering.OpenGL
 {
   internal sealed class GLVertexArrayObject : IDisposable, IComparable<GLVertexArrayObject>
   {
-    private static readonly Dictionary<Tuple<GLMesh, GLShaderProgram>, GLVertexArrayObject> ExistingBuffers =
-      new Dictionary<Tuple<GLMesh, GLShaderProgram>, GLVertexArrayObject>();
+    #region Fields / Properties
 
-    private static GLVertexArrayObject _activeVertexArray;
-    private readonly int _handle = GL.GenVertexArray();
+    //private static readonly Dictionary<Tuple<GLMesh, GLShaderProgram>, GLVertexArrayObject> ExistingBuffers =
+    //  new Dictionary<Tuple<GLMesh, GLShaderProgram>, GLVertexArrayObject>();
 
-    private GLVertexArrayObject(GLMesh mesh, GLShaderProgram shaderProgram)
+    private readonly GLHandle _glHandle;
+
+    #endregion
+
+    public GLVertexArrayObject(RenderCore renderCore, GLMesh mesh, GLShaderProgram shaderProgram)
     {
-      // Bind the VAO
-      Bind();
-      // Bind the IBO
-      mesh.IndexBuffer.Bind();
-      // In tern, bind each VBO, and bind all of it's vertex attributes
-      foreach (var vbo in mesh.VertexBuffers)
+      _glHandle = new GLHandle {RenderCore = renderCore};
+      renderCore.AddResourceLoadAction(() =>
       {
-        vbo.Bind();
-        foreach (var attribute in vbo.VertexAttributes)
+        _glHandle.Handle = GL.GenVertexArray();
+        // Bind the VAO
+        Bind();
+        // Bind the IBO
+        mesh.IndexBuffer.Bind();
+        // In tern, bind each VBO, and bind all of it's vertex attributes
+        foreach (var vbo in mesh.VertexBuffers)
         {
-          attribute.SetIfPresent(shaderProgram);
+          vbo.Bind();
+          foreach (var attribute in vbo.VertexAttributes)
+          {
+            attribute.SetIfPresent(shaderProgram);
+          }
         }
-      }
-    }
-
-    public void Dispose()
-    {
-      GL.DeleteVertexArray(_handle);
-    }
-
-    public static GLVertexArrayObject FromPair(GLMesh mesh, GLShaderProgram glShaderProgram)
-    {
-      GLVertexArrayObject glVao;
-      var tupple = new Tuple<GLMesh, GLShaderProgram>(mesh, glShaderProgram);
-      if (!ExistingBuffers.TryGetValue(tupple, out glVao))
-      {
-        glVao = new GLVertexArrayObject(mesh, glShaderProgram);
-        ExistingBuffers.Add(tupple, glVao);
-      }
-      return glVao;
-    }
-
-    public void Bind()
-    {
-      if (_activeVertexArray != this)
-      {
-        _activeVertexArray = this;
-        GL.BindVertexArray(_handle);
-      }
+      });
     }
 
     public int CompareTo(GLVertexArrayObject other)
     {
-      return _handle.CompareTo(other._handle);
+      return _glHandle.CompareTo(other._glHandle);
+    }
+
+    public void Dispose()
+    {
+      _glHandle.RenderCore.AddResourceLoadAction(() => GL.DeleteVertexArray(_glHandle.Handle));
+    }
+
+    /// <summary>
+    ///   Must be called on the GPU thread
+    /// </summary>
+    public void Bind()
+    {
+      Debug.Assert(Thread.CurrentThread.Name == RenderCore.GpuThreadName);
+      Debug.Assert(_glHandle.Handle != -1);
+      GL.BindVertexArray(_glHandle.Handle);
     }
   }
 }

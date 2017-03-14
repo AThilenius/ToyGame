@@ -4,10 +4,14 @@ namespace ToyGame.Gameplay
 {
   public class UTransform
   {
+    #region Fields / Properties
+
     public AActor Actor;
     public Vector3 Position = Vector3.Zero;
     public Quaternion Rotation = Quaternion.Identity;
     public Vector3 Scale = Vector3.One;
+
+    #endregion
 
     public UTransform(AActor parent)
     {

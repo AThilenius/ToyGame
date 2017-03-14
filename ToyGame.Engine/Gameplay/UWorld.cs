@@ -7,10 +7,13 @@ namespace ToyGame.Gameplay
 {
   public class UWorld
   {
-    private readonly List<ULevel> _levels = new List<ULevel>();
-    public ACamera MainCamera;
+    #region Fields / Properties
 
     public IReadOnlyCollection<ULevel> Levels => _levels.AsReadOnly();
+    public ACamera MainCamera;
+    private readonly List<ULevel> _levels = new List<ULevel>();
+
+    #endregion
 
     public void AddLevel(ULevel level)
     {
@@ -24,18 +27,10 @@ namespace ToyGame.Gameplay
       {
         // Just use the first camera we can find. At some point this will all
         // be gutted for a 'Pawn' based control system.
-        foreach (var level in _levels)
-        {
-          var cameras = level.GetInstancesOf<ACamera>();
-          if (cameras.Count() > 0)
-          {
-            MainCamera = cameras[0];
-            break;
-          }
-        }
+        MainCamera = _levels.SelectMany(level => level.GetInstancesOf<ACamera>()).FirstOrDefault();
         if (MainCamera == null)
         {
-          Console.WriteLine("No camera was added to any level. Skipping rendering.");
+          Console.WriteLine(@"No camera was added to any level. Skipping rendering.");
           return;
         }
       }

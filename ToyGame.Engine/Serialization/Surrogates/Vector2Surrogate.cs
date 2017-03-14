@@ -6,8 +6,12 @@ namespace ToyGame.Serialization.Surrogates
   [ProtoContract]
   internal class Vector2Surrogate
   {
+    #region Fields / Properties
+
     [ProtoMember(1)] public float X;
     [ProtoMember(2)] public float Y;
+
+    #endregion
 
     public static implicit operator Vector2Surrogate(Vector2 vector)
     {

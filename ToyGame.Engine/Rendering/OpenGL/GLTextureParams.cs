@@ -4,6 +4,8 @@ namespace ToyGame.Rendering.OpenGL
 {
   internal class GLTextureParams
   {
+    #region Fields / Properties
+
     public static readonly GLTextureParams Default = new GLTextureParams();
     public bool GenerateMipMaps = true;
     public All MagFilter = All.Linear;
@@ -12,5 +14,7 @@ namespace ToyGame.Rendering.OpenGL
     public bool UseAnisotropicFiltering = true;
     public All WrapS = All.Repeat;
     public All WrapT = All.Repeat;
+
+    #endregion
   }
 }

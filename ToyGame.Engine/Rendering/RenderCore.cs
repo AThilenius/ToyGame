@@ -1,15 +1,10 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Threading;
-using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Platform;
 using ToyGame.Rendering.OpenGL;
-using ToyGame.Gameplay;
-using ToyGame.Materials;
-using ToyGame.Resources;
-using System.Diagnostics;
 
 namespace ToyGame.Rendering
 {
@@ -17,14 +12,19 @@ namespace ToyGame.Rendering
   {
     #region Fields / Properties
 
-    public Color4 ClearColor = Color4.Purple;
+    public const string GpuThreadName = "OpenGL Render Thread";
     private readonly ConcurrentQueue<GLDrawCall> _staticDrawCalls = new ConcurrentQueue<GLDrawCall>();
     private readonly IWindowInfo _windowInfo;
+    private readonly Thread _gpuThread;
     private IGraphicsContext _context;
+    private ConcurrentQueue<Action> _backPreRenderBuffer = new ConcurrentQueue<Action>();
+    private ConcurrentQueue<Action> _backResourceLoadBuffer = new ConcurrentQueue<Action>();
     private ConcurrentQueue<GLDrawCall> _backDrawCallBuffer = new ConcurrentQueue<GLDrawCall>();
     private volatile object _swapLock = new object();
-    private volatile GLDrawCall[] _frontBuffer;
-    private volatile GLDrawCall[] _finalizedBuffer;
+    private volatile Action[] _frontPreRenderBuffer;
+    private volatile Action[] _frontResourceLoadBuffer;
+    private volatile GLDrawCall[] _frontDrawBuffer;
+    private volatile GLDrawCall[] _finalizedDrawBuffer;
     private bool _shutdown;
 
     #endregion
@@ -32,7 +32,8 @@ namespace ToyGame.Rendering
     public RenderCore(IWindowInfo windowInfo)
     {
       _windowInfo = windowInfo;
-      new Thread(DoGpuThreadWork) {Name = "OpenGL Render Thread"}.Start();
+      _gpuThread = new Thread(DoGpuThreadWork) {Name = GpuThreadName};
+      _gpuThread.Start();
     }
 
     /// <summary>
@@ -44,14 +45,14 @@ namespace ToyGame.Rendering
     public void FinalizeFrame()
     {
       // Merge and sort both static and dynamic draw calls
-      _finalizedBuffer = new GLDrawCall[_backDrawCallBuffer.Count + _staticDrawCalls.Count];
-      _backDrawCallBuffer.CopyTo(_finalizedBuffer, 0);
-      _staticDrawCalls.CopyTo(_finalizedBuffer, _backDrawCallBuffer.Count);
-      Array.Sort(_finalizedBuffer);
+      _finalizedDrawBuffer = new GLDrawCall[_backDrawCallBuffer.Count + _staticDrawCalls.Count];
+      _backDrawCallBuffer.CopyTo(_finalizedDrawBuffer, 0);
+      _staticDrawCalls.CopyTo(_finalizedDrawBuffer, _backDrawCallBuffer.Count);
+      Array.Sort(_finalizedDrawBuffer);
       // Generate drawing actions for all draw calls off-GPU thread.
-      for (var i = 0; i < _finalizedBuffer.Length; i++)
+      for (var i = 0; i < _finalizedDrawBuffer.Length; i++)
       {
-        _finalizedBuffer[i].GenerateBindAction(i > 0 ? _finalizedBuffer[i - 1] : null);
+        _finalizedDrawBuffer[i].GenerateBindAction(i > 0 ? _finalizedDrawBuffer[i - 1] : null);
       }
     }
 
@@ -74,8 +75,15 @@ namespace ToyGame.Rendering
       // Wait for the swap lock, blocking [calling thread] if [gpu thread] is still working
       lock (_swapLock)
       {
+        // Copy over PreRender calls. Note this 'could' be done with pointer swapping like the draw calls
+        _frontPreRenderBuffer = new Action[_backPreRenderBuffer.Count];
+        _backPreRenderBuffer.CopyTo(_frontPreRenderBuffer, 0);
+        _backPreRenderBuffer = new ConcurrentQueue<Action>();
+        _frontResourceLoadBuffer = new Action[_backResourceLoadBuffer.Count];
+        _backResourceLoadBuffer.CopyTo(_frontResourceLoadBuffer, 0);
+        _backResourceLoadBuffer = new ConcurrentQueue<Action>();
         // GPU thread is done, and waiting for a Monitor pule to the lock to start
-        _frontBuffer = _finalizedBuffer;
+        _frontDrawBuffer = _finalizedDrawBuffer;
         Monitor.Pulse(_swapLock);
       }
     }
@@ -87,7 +95,7 @@ namespace ToyGame.Rendering
     public void ShutDown()
     {
       _shutdown = true;
-      _finalizedBuffer = new GLDrawCall[0];
+      _finalizedDrawBuffer = new GLDrawCall[0];
       SwapBuffers();
     }
 
@@ -112,13 +120,31 @@ namespace ToyGame.Rendering
       _backDrawCallBuffer.Enqueue(drawCall);
     }
 
+    internal void AddPreRenderAction(Action action)
+    {
+      if (Thread.CurrentThread == _gpuThread)
+      {
+        // This was called recursivly by another pre-render action, just execute it directly.
+        action();
+      }
+      else
+      {
+        _backPreRenderBuffer.Enqueue(action);
+      }
+    }
 
-    // DEBUG
-    private readonly Stopwatch _stopWatch = Stopwatch.StartNew();
-    private readonly UWorld _world = new UWorld();
-    private ACamera _camera;
-    private AStaticMesh _staticMesh;
-    private ResourceBundle _resourceBundle;
+    internal void AddResourceLoadAction(Action action)
+    {
+      if (Thread.CurrentThread == _gpuThread)
+      {
+        // This was called recursivly by another loading resource, just execute it directly.
+        action();
+      }
+      else
+      {
+        _backResourceLoadBuffer.Enqueue(action);
+      }
+    }
 
     private void DoGpuThreadWork()
     {
@@ -126,56 +152,56 @@ namespace ToyGame.Rendering
       {
         _context = new GraphicsContext(GraphicsMode.Default, _windowInfo);
         _context.MakeCurrent(_windowInfo);
-
-
-        // DEBUG
-        _camera = new ACamera { AspectRatio = (16.0f / 9.0f) };
-        var material = new VoxelMaterial();
-        _resourceBundle = ResourceBundleManager.Instance.AddBundleFromProjectPath(@"C:\Users\Alec\thilenius\ToyGame");
-        var model =
-          _resourceBundle.ImportResource(@"Assets\Models\build_blacksmith_01.fbx", @"ImportCache") as ModelResource;
-        material.DiffuseTexture =
-          _resourceBundle.ImportResource(@"Assets\Textures\build_building_01_a.tif", "ImportCache") as TextureResource;
-        material.MetallicRoughnessTexture =
-          _resourceBundle.ImportResource(@"Assets\Textures\build_building_01_sg.tif", "ImportCache") as TextureResource;
-        _staticMesh = new AStaticMesh(model, material)
-        {
-          Transform = { Scale = new Vector3(0.5f), Position = new Vector3(0, -5, -30) }
-        };
-
-        var level = new ULevel();
-        _world.AddLevel(level);
-        level.AddActor(_staticMesh);
-        level.AddActor(_camera);
-
-        // DEBUG
-
-
         while (!_shutdown)
         {
-          // Render everything out.
-          GL.ClearColor(ClearColor);
-          GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-          if (_frontBuffer != null)
+          // For now, just load ALL resources at once. In the future, I'll throttle this to only use
+          // the remaining draw time (16.7ms - drawTime) to buffer resources.
+          if (_frontResourceLoadBuffer != null)
           {
-            for (var i = 0; i < _frontBuffer.Length; i++)
+            for (var i = 0; i < _frontResourceLoadBuffer.Length; i++)
+            {
+              _frontResourceLoadBuffer[i]();
+              {
+                var error = GL.GetError();
+                if (error != ErrorCode.NoError)
+                  throw new Exception(error.ToString());
+              }
+            }
+          }
+          // Pre-Render calls (probably global Uniform buffering)
+          if (_frontPreRenderBuffer != null)
+          {
+            for (var i = 0; i < _frontPreRenderBuffer.Length; i++)
+            {
+              _frontPreRenderBuffer[i]();
+              {
+                var error = GL.GetError();
+                if (error != ErrorCode.NoError)
+                  throw new Exception(error.ToString());
+              }
+            }
+          }
+          if (_frontDrawBuffer != null)
+          {
+            for (var i = 0; i < _frontDrawBuffer.Length; i++)
             {
               // The custom action has already been built for the [gpu thread] to execute, meaning we
               // don't need to do any extra work in the [gpu thread], beautiful!
-              _frontBuffer[i].Draw();
+              _frontDrawBuffer[i].Draw();
+              {
+                var error = GL.GetError();
+                if (error != ErrorCode.NoError)
+                  throw new Exception(error.ToString());
+              }
             }
           }
           _context.SwapBuffers();
+          {
+            var error = GL.GetError();
+            if (error != ErrorCode.NoError)
+              throw new Exception(error.ToString());
+          }
           // Wait for a new front buffer to be loaded.
-
-          // DEBUG
-          _staticMesh.Transform.Rotation = Quaternion.FromEulerAngles(0,
-            (float)_stopWatch.Elapsed.TotalMilliseconds / 2000.0f,
-            (float)-Math.PI / 2.0f);
-          _world.EnqueueDrawCalls(this);
-          // DEBUG
-
-
           Monitor.Wait(_swapLock);
         }
       }

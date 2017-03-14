@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
-using ToyGame.Gameplay;
+using ToyGame.Rendering;
 using ToyGame.Rendering.OpenGL;
 using ToyGame.Rendering.Shaders;
 using ToyGame.Resources;
@@ -33,28 +33,22 @@ namespace ToyGame.Materials
 
     public TextureResource DiffuseTexture;
     public TextureResource MetallicRoughnessTexture;
-    private static VoxelShader _voxelShader;
+    private static GLVoxelShader _glVoxelShader;
 
     #endregion
 
-    public VoxelMaterial()
+    public VoxelMaterial(RenderCore renderCore)
     {
-      if (_voxelShader == null)
+      if (_glVoxelShader == null)
       {
-        _voxelShader = new VoxelShader();
+        _glVoxelShader = new GLVoxelShader(renderCore);
       }
-      Program = _voxelShader;
+      Program = _glVoxelShader;
     }
 
-    protected override void UpdateProgramUniforms()
+    internal override GLDrawCall.UniformBind[] GenerateUniformBinds(Matrix4 modelMatrix)
     {
-      DiffuseTexture?.GLTexture.Bind(TextureUnit.Texture0);
-      MetallicRoughnessTexture?.GLTexture.Bind(TextureUnit.Texture1);
-    }
-
-    internal override GLDrawCall.UniformBind[] GenerateUniformBinds(ACamera camera, Matrix4 modelMatrix)
-    {
-      var baseUniforms = base.GenerateUniformBinds(camera, modelMatrix);
+      var baseUniforms = base.GenerateUniformBinds(modelMatrix);
       var thisUniforms = new[]
       {
         new GLDrawCall.UniformBind("exposure-" + Exposure,

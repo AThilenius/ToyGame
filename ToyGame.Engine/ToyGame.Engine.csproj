@@ -24,6 +24,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -83,16 +84,18 @@
     <Compile Include="Rendering\OpenGL\DeferredPipeline.cs" />
     <Compile Include="Rendering\OpenGL\GLDrawCall.cs" />
     <Compile Include="Rendering\OpenGL\GLMesh.cs" />
+    <Compile Include="Rendering\OpenGL\GLHandle.cs" />
     <Compile Include="Rendering\OpenGL\GLTexture.cs" />
     <Compile Include="Rendering\OpenGL\GLTextureParams.cs" />
+    <Compile Include="Rendering\OpenGL\GLUniformBuffer.cs" />
     <Compile Include="Rendering\OpenGL\GLVertexArrayObject.cs" />
     <Compile Include="Rendering\OpenGL\GLVertexAttribute.cs" />
     <Compile Include="Rendering\OpenGL\GLVertexBufferObject.cs" />
     <Compile Include="Rendering\RenderCore.cs" />
     <Compile Include="Rendering\Shaders\GLShaderProgram.cs" />
     <Compile Include="Rendering\Shaders\GLShaderStage.cs" />
-    <Compile Include="Rendering\Shaders\StandardShader.cs" />
-    <Compile Include="Rendering\Shaders\VoxelShader.cs" />
+    <Compile Include="Rendering\Shaders\GLStandardShader.cs" />
+    <Compile Include="Rendering\Shaders\GLVoxelShader.cs" />
     <Compile Include="Resources\DataBlocks\ModelDataBlock.cs" />
     <Compile Include="Resources\DataBlocks\ResourceDataBlock.cs" />
     <Compile Include="Resources\DataBlocks\TextureDataBlock.cs" />

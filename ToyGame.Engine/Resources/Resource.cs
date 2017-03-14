@@ -2,7 +2,7 @@
 using System.IO;
 using Assimp;
 using FreeImageAPI;
-using ProtoBuf;
+using ToyGame.Rendering;
 using ToyGame.Resources.DataBlocks;
 
 namespace ToyGame.Resources
@@ -16,7 +16,6 @@ namespace ToyGame.Resources
 
   public abstract class Resource
   {
-
     #region Fields / Properties
 
     public Guid Guid => DataBlock.Guid;
@@ -40,37 +39,22 @@ namespace ToyGame.Resources
     }
 
     /// <summary>
-    /// Override in a Resouce class to serialize the object to a corresponding *DataBlock object.
+    ///   Override in a Resouce class to serialize the object to a corresponding *DataBlock object.
     /// </summary>
     /// <param name="stream">The stream to save to</param>
     public virtual void SaveToStream(Stream stream)
     {
-      
     }
 
     /// <summary>
-    /// Override in a Resouce to handle importing an asset (normally from file) and converting
-    /// it's data to the resouce format.
+    ///   Override in a Resouce to handle importing an asset (normally from file) and converting
+    ///   it's data to the resouce format.
     /// </summary>
     /// <param name="fullPath"></param>
     public virtual void ImportFromFullPath(string fullPath)
     {
       Name = Path.GetFileNameWithoutExtension(fullPath);
       FilePath = fullPath;
-    }
-
-    /// <summary>
-    /// Implemented by Resouce classes to handle loading their data into GPU memory.
-    /// </summary>
-    internal abstract void LoadToGpu();
-
-    /// <summary>
-    /// Imports the resouce from a serialized (protobuf) stream. Uses RTTI to cast to the derrived type.
-    /// </summary>
-    /// <param name="stream">The stream to load from</param>
-    internal static Resource LoadFromStream(Stream stream)
-    {
-      throw new NotImplementedException();
     }
 
     public static ResourceType GetResourceTypeFromFile(string fullPath)
@@ -87,6 +71,20 @@ namespace ToyGame.Resources
       // Unknown resource type, out of luck
     }
 
+    /// <summary>
+    ///   Implemented by Resouce classes to handle loading their data into GPU memory.
+    /// </summary>
+    internal abstract void LoadToGpu(RenderCore renderCore);
+
+    /// <summary>
+    ///   Imports the resouce from a serialized (protobuf) stream. Uses RTTI to cast to the derrived type.
+    /// </summary>
+    /// <param name="stream">The stream to load from</param>
+    internal static Resource LoadFromStream(Stream stream)
+    {
+      throw new NotImplementedException();
+    }
+
     internal static Resource GetDerivedResouceFromFileType(ResourceBundle resourceBundle, string fullPath)
     {
       switch (GetResourceTypeFromFile(fullPath))
@@ -99,6 +97,5 @@ namespace ToyGame.Resources
           throw new ResourceImportException("Unhandled file type");
       }
     }
-
   }
 }

@@ -1,12 +1,8 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.IO;
-using System.Linq;
-using Assimp;
-using FreeImageAPI;
-using OpenTK;
 using ProtoBuf;
-using ToyGame.Utilities;
+using ToyGame.Rendering;
 
 namespace ToyGame.Resources
 {
@@ -46,10 +42,14 @@ namespace ToyGame.Resources
     private readonly ConcurrentDictionary<Guid, Resource> _allReferances =
       new ConcurrentDictionary<Guid, Resource>();
 
+    private readonly RenderCore _renderCore;
+
     #endregion
 
-    internal ResourceBundle(string projectPath, BundleSourceType sourceType = BundleSourceType.ProjectPath)
+    internal ResourceBundle(RenderCore renderCore, string projectPath,
+      BundleSourceType sourceType = BundleSourceType.ProjectPath)
     {
+      _renderCore = renderCore;
       ProjectPath = projectPath;
       SourceType = sourceType;
     }
@@ -81,24 +81,9 @@ namespace ToyGame.Resources
           throw new ResourceImportException("Failed to save to: " + toPath);
         }
       }
-      // For now...
-      resource.LoadToGpu();
+      resource.LoadToGpu(_renderCore);
       _allReferances.TryAdd(resource.Guid, resource);
       return resource;
     }
-
-    //public Resource[] InlcudeAllXAssetsInFolder(string path, SearchOption searchOption)
-    //{
-    //  path = Path.Combine(ProjectPath, path);
-    //  return Directory.GetFiles(path, "*" + AssetExtension, searchOption).Select(IncludeXAsset).ToArray();
-    //}
-
-    //public Resource IncludeXAsset(string path)
-    //{
-    //  path = Path.Combine(ProjectPath, path);
-    //  Resource resouce;
-    //  return resource;
-    //}
-
   }
 }

@@ -2,7 +2,7 @@
 using System.Linq;
 using Assimp;
 using OpenTK;
-using OpenTK.Graphics.OpenGL;
+using ToyGame.Rendering;
 using ToyGame.Rendering.OpenGL;
 using ToyGame.Resources.DataBlocks;
 
@@ -40,11 +40,10 @@ namespace ToyGame.Resources
       ((ModelDataBlock) DataBlock).Name = Path.GetFileNameWithoutExtension(fullPath);
     }
 
-    internal override void LoadToGpu()
+    internal override void LoadToGpu(RenderCore renderCore)
     {
       GLMeshes = ((ModelDataBlock) DataBlock).ModelParts.Select(part => new GLMesh(
-        part.Positions, part.Indexes, part.Normals, part.Uv0, part.Uv1, part.Colors,
-        BufferUsageHint.StaticDraw)).ToArray();
+        renderCore, part.Positions, part.Indexes, part.Normals, part.Uv0, part.Uv1, part.Colors)).ToArray();
     }
   }
 }

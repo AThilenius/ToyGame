@@ -2,16 +2,15 @@ using System;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
-using ToyGame.Gameplay;
 
 namespace ToyGame.Sample
 {
   internal sealed class GameWindow : OpenTK.GameWindow
   {
-    private readonly UWorld _world = new UWorld();
-    private ToyEngineContext _context;
-    private AStaticMesh _staticMesh;
-    private float _totalTime;
+    //private readonly UWorld _world = new UWorld();
+    //private ToyEngineContext _context;
+    //private AStaticMesh _staticMesh;
+    //private float _totalTime;
 
     public GameWindow()
       // set window resolution, title, and default behaviour
@@ -37,8 +36,8 @@ namespace ToyGame.Sample
 
     protected override void OnLoad(EventArgs e)
     {
-      _context = new ToyEngineContext();
-      var camera = new ACamera {AspectRatio = (Width/(float) Height)};
+      //_context = new ToyEngineContext();
+      //var camera = new ACamera {AspectRatio = (Width/(float) Height)};
 
       //VoxelMaterial material = new VoxelMaterial();
       //ModelResource model = ResourceManager.FromPath<ModelResource>(@"C:\Users\Alec\Desktop\tank2\tank.obj");
@@ -50,30 +49,30 @@ namespace ToyGame.Sample
 
       //TextureResource texture = ResourceManager.FromPath<TextureResource>(@"C:\Users\Alec\thilenius\ToyGame\Assets\Models\AKM\textures\WPNT_AKM_BaseColor.tga");
 
-      var level = new ULevel();
-      _world.AddLevel(level);
-      //level.AddActor(staticMesh);
-      level.AddActor(camera);
-      var error = GL.GetError();
-      if (error != ErrorCode.NoError)
-        Console.WriteLine("GLError: " + error);
+      //var level = new ULevel();
+      //_world.AddLevel(level);
+      ////level.AddActor(staticMesh);
+      //level.AddActor(camera);
+      //var error = GL.GetError();
+      //if (error != ErrorCode.NoError)
+      //  Console.WriteLine("GLError: " + error);
     }
 
     protected override void OnUpdateFrame(FrameEventArgs e)
     {
-      _totalTime += (float) e.Time;
+      //_totalTime += (float) e.Time;
       //staticMesh.Transform.Rotation = Quaternion.FromEulerAngles(0, totalTime / 2.0f, (float) -Math.PI / 2.0f);
     }
 
     protected override void OnRenderFrame(FrameEventArgs e)
     {
-      GL.ClearColor(Color4.Purple);
-      GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-      _world.Render();
-      var error = GL.GetError();
-      if (error != ErrorCode.NoError)
-        Console.WriteLine("Error post new Renderer(): " + error);
-      SwapBuffers();
+      //GL.ClearColor(Color4.Purple);
+      //GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+      //_world.Render();
+      //var error = GL.GetError();
+      //if (error != ErrorCode.NoError)
+      //  Console.WriteLine("Error post new Renderer(): " + error);
+      //SwapBuffers();
     }
   }
 }

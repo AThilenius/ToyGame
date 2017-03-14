@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Linq;
 using ProtoBuf;
-using ToyGame.Utilities;
+using ToyGame.Rendering;
 
 namespace ToyGame.Resources
 {
@@ -40,10 +39,10 @@ namespace ToyGame.Resources
       return bundle;
     }
 
-    public ResourceBundle AddBundleFromProjectPath(string projectPath)
+    public ResourceBundle AddBundleFromProjectPath(RenderCore renderCore, string projectPath)
     {
-      var bundle = new ResourceBundle(projectPath);
-      Console.WriteLine("Need to load all .xassets in the folder here...");
+      var bundle = new ResourceBundle(renderCore, projectPath);
+      Console.WriteLine(@"Need to load all .xassets in the folder here...");
       _bundlesByGuid.TryAdd(bundle.Guid, bundle);
       return bundle;
     }

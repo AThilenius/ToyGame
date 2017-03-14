@@ -1,6 +1,6 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using FreeImageAPI;
+using ToyGame.Rendering;
 using ToyGame.Rendering.OpenGL;
 using ToyGame.Resources.DataBlocks;
 
@@ -49,12 +49,12 @@ namespace ToyGame.Resources
       ((TextureDataBlock) DataBlock).RawData = stream.ToArray();
     }
 
-    internal override void LoadToGpu()
+    internal override void LoadToGpu(RenderCore renderCore)
     {
       var stream = new MemoryStream(RawData);
       var image = FreeImage.LoadFromStream(stream, FREE_IMAGE_LOAD_FLAGS.DEFAULT);
       var data = FreeImage.GetBits(image);
-      GLTexture = GLTexture.LoadGLTexture(Width, Height, GLTextureParams.Default, data);
+      GLTexture = GLTexture.LoadGLTexture(renderCore, Width, Height, GLTextureParams.Default, data);
       FreeImage.FreeHbitmap(data);
     }
   }

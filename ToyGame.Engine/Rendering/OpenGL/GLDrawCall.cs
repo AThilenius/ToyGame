@@ -111,6 +111,7 @@ namespace ToyGame.Rendering.OpenGL
       ///   look like: "1.32:423.42:63.21".
       /// </summary>
       public readonly string FullValueHash;
+
       public readonly Action UniformBindAction;
 
       #endregion

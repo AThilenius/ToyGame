@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using OpenTK.Graphics.OpenGL;
 using ToyGame.Materials;
 using ToyGame.Rendering;
@@ -11,8 +12,9 @@ namespace ToyGame.Gameplay
   {
     #region Fields / Properties
 
-    public Material Material;
-    public ModelResource Model;
+    public readonly Material Material;
+    public readonly ModelResource Model;
+    private GLVertexArrayObject[] _vertexArrayObjects;
 
     #endregion
 
@@ -24,13 +26,19 @@ namespace ToyGame.Gameplay
 
     public void EnqueueDrawCalls(RenderCore renderCore, ACamera camera)
     {
-      foreach (var glMesh in Model.GLMeshes)
+      if (_vertexArrayObjects == null)
       {
+        _vertexArrayObjects =
+          Model.GLMeshes.Select(glMesh => new GLVertexArrayObject(renderCore, glMesh, Material.Program)).ToArray();
+      }
+      for (var i = 0; i < Model.GLMeshes.Length; i++)
+      {
+        var glMesh = Model.GLMeshes[i];
         renderCore.AddSingleFrameDrawCall(new GLDrawCall(
           Material.Program,
           Material.GenerateTexturebinds(),
-          GLVertexArrayObject.FromPair(glMesh, Material.Program),
-          Material.GenerateUniformBinds(camera, Transform.GetWorldMatrix()),
+          _vertexArrayObjects[i],
+          Material.GenerateUniformBinds(Transform.GetWorldMatrix()),
           () =>
             GL.DrawElements(PrimitiveType.Triangles, glMesh.IndexBuffer.BufferCount, DrawElementsType.UnsignedInt,
               IntPtr.Zero)));
