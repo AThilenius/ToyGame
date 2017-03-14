@@ -37,7 +37,7 @@ namespace ToyGame.Rendering.OpenGL
     }
 
     /// <summary>
-    /// IComparable Implementation
+    ///   IComparable Implementation
     /// </summary>
     public int CompareTo(T other)
     {
@@ -45,7 +45,7 @@ namespace ToyGame.Rendering.OpenGL
     }
 
     /// <summary>
-    /// IDisposable Implementation
+    ///   IDisposable Implementation
     /// </summary>
     public void Dispose()
     {
@@ -53,15 +53,15 @@ namespace ToyGame.Rendering.OpenGL
     }
 
     /// <summary>
-    /// IGLResource Implementation
+    ///   IGLResource Implementation
     /// </summary>
     public int GLHandle { get; private set; } = -1;
 
     public void GpuAllocate()
     {
-      if (GLHandle != -1) return;
       RenderContext.AddResourceLoadAction(() =>
       {
+        if (GLHandle != -1) return;
         GLHandle = GLAllocAction();
         LoadToGpu();
       });
@@ -69,15 +69,17 @@ namespace ToyGame.Rendering.OpenGL
 
     public void GpuFree()
     {
-      if (GLHandle == -1) return;
-      var handleId = GLHandle;
-      GLHandle = -1;
-      RenderContext.AddResourceLoadAction(() => GLFreeAction(handleId));
+      RenderContext.AddResourceLoadAction(() =>
+      {
+        if (GLHandle == -1) return;
+        GLFreeAction(GLHandle);
+        GLHandle = -1;
+      });
     }
 
     /// <summary>
-    /// Called during GPU Allocation, should be overriden by derrived type to buffer
-    /// GPU data and such things.
+    ///   Called during GPU Allocation, should be overriden by derrived type to buffer
+    ///   GPU data and such things.
     /// </summary>
     protected abstract void LoadToGpu();
   }

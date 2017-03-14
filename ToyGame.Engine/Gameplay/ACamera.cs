@@ -28,6 +28,7 @@ namespace ToyGame.Gameplay
     {
       _renderContext = renderContext;
       _uniformBuffer = new GLUniformBuffer(renderContext, Marshal.SizeOf<Matrix4>()*2, 0);
+      _uniformBuffer.GpuAllocate();
     }
 
     public void PreRender()

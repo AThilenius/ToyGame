@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Threading;
 using OpenTK.Graphics.OpenGL;
 using ToyGame.Rendering.Shaders;
 
@@ -33,7 +34,8 @@ namespace ToyGame.Rendering.OpenGL
     /// <param name="shaderProgram"></param>
     public void SetIfPresent(GLShaderProgram shaderProgram)
     {
-      Debug.Assert(shaderProgram.GLHandle.Handle != -1);
+      Debug.Assert(shaderProgram.GLHandle != -1);
+      Debug.Assert(Thread.CurrentThread.Name == RenderContext.GpuThreadName);
       // Get location of attribute from shader program
       var index = shaderProgram.GetAttributeLocation(_name);
       if (index < 0) return;

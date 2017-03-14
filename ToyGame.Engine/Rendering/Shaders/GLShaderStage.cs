@@ -4,37 +4,33 @@ using ToyGame.Rendering.OpenGL;
 
 namespace ToyGame.Rendering.Shaders
 {
-  internal sealed class GLShaderStage : IDisposable
+  internal sealed class GLShaderStage : GLResource<GLShaderStage>
   {
     #region Fields / Properties
 
-    public readonly GLHandle GLHandle;
+    private readonly string _code;
 
     #endregion
 
     public GLShaderStage(RenderContext renderContext, ShaderType type, string code)
+      : base(renderContext, () => GL.CreateShader(type), GL.DeleteShader)
     {
-      GLHandle = new GLHandle {RenderContext = renderContext};
-      renderContext.AddResourceLoadAction(() =>
-      {
-        GLHandle.Handle = GL.CreateShader(type);
-        // Compile vertex shader
-        GL.ShaderSource(GLHandle.Handle, code);
-        GL.CompileShader(GLHandle.Handle);
-        string info;
-        int statusCode;
-        GL.GetShaderInfoLog(GLHandle.Handle, out info);
-        GL.GetShader(GLHandle.Handle, ShaderParameter.CompileStatus, out statusCode);
-        if (statusCode != 1)
-        {
-          throw new ApplicationException(info);
-        }
-      });
+      _code = code;
     }
 
-    public void Dispose()
+    protected override void LoadToGpu()
     {
-      GLHandle.RenderContext.AddResourceLoadAction(() => GL.DeleteShader(GLHandle.Handle));
+      // Compile vertex shader
+      GL.ShaderSource(GLHandle, _code);
+      GL.CompileShader(GLHandle);
+      string info;
+      int statusCode;
+      GL.GetShaderInfoLog(GLHandle, out info);
+      GL.GetShader(GLHandle, ShaderParameter.CompileStatus, out statusCode);
+      if (statusCode != 1)
+      {
+        throw new ApplicationException(info);
+      }
     }
   }
 }

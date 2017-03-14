@@ -58,13 +58,13 @@ namespace ToyGame.Editor
       _world = new XWorld(_glControl.WindowInfo);
 
       Console.Text += "\nWindow size: " + _glControl.Width + "x" + _glControl.Height;
-      _camera = new ACamera(_renderCore)
+      _camera = new ACamera(_world.RenderContext)
       {
         AspectRatio = (_glControl.Width/(float) _glControl.Height),
         Viewport = new Rectangle(0, 0, _glControl.Width, _glControl.Height)
       };
-      var material = new VoxelMaterial(_renderCore);
-      _resourceBundle = ResourceBundleManager.Instance.AddBundleFromProjectPath(_renderCore,
+      var material = new VoxelMaterial(_world.RenderContext);
+      _resourceBundle = ResourceBundleManager.Instance.AddBundleFromProjectPath(_world.RenderContext,
         @"C:\Users\Alec\thilenius\ToyGame");
       var model =
         _resourceBundle.ImportResource(@"Assets\Models\build_blacksmith_01.fbx", @"ImportCache") as ModelResource;
@@ -90,14 +90,14 @@ namespace ToyGame.Editor
       _staticMesh.Transform.Rotation = Quaternion.FromEulerAngles(0,
         (float) _stopWatch.Elapsed.TotalMilliseconds/2000.0f,
         (float) -Math.PI/2.0f);
-      _world.EnqueueDrawCalls(_renderCore);
-      _renderCore.FinalizeFrame();
-      _renderCore.SwapBuffers();
+      _world.EnqueueDrawCalls(_world.RenderContext);
+      _world.RenderContext.FinalizeFrame();
+      _world.RenderContext.SwapBuffers();
     }
 
     private void Window_Closing(object sender, CancelEventArgs e)
     {
-      _renderCore.ShutDown();
+      _world.RenderContext.ShutDown();
     }
   }
 }

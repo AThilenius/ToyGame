@@ -7,7 +7,7 @@ using System.Reflection;
 namespace ToyGame.Utilities
 {
   /// <summary>
-  ///   Static reflection helpers, complements of my AudioApp project. Use these with care,
+  ///   Static reflection helpers, complements of my AudioApp project. Bind these with care,
   ///   some of them are VERY expensive to invoke. The heavy weight functions are fantastic
   ///   for doing a core-dump over a TCP socket (That is in fact what they were used for)
   /// </summary>

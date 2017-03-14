@@ -42,6 +42,7 @@ namespace ToyGame.Materials
       if (_glVoxelShader == null)
       {
         _glVoxelShader = new GLVoxelShader(renderContext);
+        _glVoxelShader.GpuAllocate();
       }
       Program = _glVoxelShader;
     }

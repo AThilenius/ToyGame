@@ -4,30 +4,22 @@ namespace ToyGame.Rendering.Shaders
 {
   internal class GLVoxelShader : GLShaderProgram
   {
-    public GLVoxelShader(RenderContext renderContext) : base(renderContext)
+    public GLVoxelShader(RenderContext renderContext) : base(renderContext, new[]
     {
-      Compile(new[]
+      new GLShaderStage(renderContext, ShaderType.VertexShader, VertexShaderCode),
+      new GLShaderStage(renderContext, ShaderType.FragmentShader, FragmentShaderCode)
+    }, new[] {"position", "uv0", "normal"},
+      new[]
       {
-        new GLShaderStage(renderContext, ShaderType.VertexShader, _vertexShaderCode),
-        new GLShaderStage(renderContext, ShaderType.FragmentShader, _fragmentShaderCode)
-      }, new[] {"position", "uv0", "normal"},
-        new[]
-        {
-          "camPos", // "exposure",
-          "lightPositions[0]",
-          "lightPositions[1]",
-          "lightPositions[2]",
-          "lightPositions[3]",
-          "lightColors[0]",
-          "lightColors[1]",
-          "lightColors[2]",
-          "lightColors[3]"
-        });
+        "camPos", "lightPositions[0]", "lightPositions[1]", "lightPositions[2]", "lightPositions[3]",
+        "lightColors[0]", "lightColors[1]", "lightColors[2]", "lightColors[3]"
+      })
+    {
     }
 
     #region ShaderGLSL
 
-    private readonly string _vertexShaderCode = @"
+    private const string VertexShaderCode = @"
         #version 420
         in vec3 position;
         in vec2 uv0;
@@ -54,7 +46,7 @@ namespace ToyGame.Rendering.Shaders
             gl_Position =  projectionMatrix * viewMatrix * vec4(WorldPos, 1.0);
         }";
 
-    private readonly string _fragmentShaderCode = @"
+    private const string FragmentShaderCode = @"
         #version 420 core
         out vec4 FragColor;
         in vec2 TexCoords;

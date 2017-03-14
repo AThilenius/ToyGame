@@ -84,7 +84,6 @@
     <Compile Include="Rendering\OpenGL\DeferredPipeline.cs" />
     <Compile Include="Rendering\OpenGL\GLDrawCall.cs" />
     <Compile Include="Rendering\OpenGL\GLMesh.cs" />
-    <Compile Include="Rendering\OpenGL\GLHandle.cs" />
     <Compile Include="Rendering\OpenGL\GLResource.cs" />
     <Compile Include="Rendering\OpenGL\GLTexture.cs" />
     <Compile Include="Rendering\OpenGL\GLTextureParams.cs" />

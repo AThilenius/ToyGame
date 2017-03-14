@@ -23,6 +23,7 @@ namespace ToyGame.Materials
       if (_glStandardShader == null)
       {
         _glStandardShader = new GLStandardShader(renderContext);
+        _glStandardShader.GpuAllocate();
       }
       Program = _glStandardShader;
     }

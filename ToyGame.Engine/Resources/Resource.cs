@@ -2,7 +2,7 @@
 using System.IO;
 using Assimp;
 using FreeImageAPI;
-using ToyGame.Rendering;
+using ToyGame.Rendering.OpenGL;
 using ToyGame.Resources.DataBlocks;
 
 namespace ToyGame.Resources
@@ -29,6 +29,7 @@ namespace ToyGame.Resources
 
     public string FilePath { get; internal set; }
     public ResourceBundle ResourceBundle { get; internal set; }
+    internal virtual IGLResource GLResource => null;
     internal ResourceDataBlock DataBlock;
 
     #endregion
@@ -47,8 +48,18 @@ namespace ToyGame.Resources
     }
 
     /// <summary>
+    ///   Override in a Resource class to deserialize the object from a corresponding *DataBlock
+    ///   object. Is also responsible for creating the IGLResource if needed.
+    /// </summary>
+    /// <param name="stream">The stream to load the resource from</param>
+    public virtual void LoadFromStream(Stream stream)
+    {
+    }
+
+    /// <summary>
     ///   Override in a Resouce to handle importing an asset (normally from file) and converting
-    ///   it's data to the resouce format.
+    ///   it's data to the resouce format. Is also responsible for creating the IGLResource if
+    ///   needed.
     /// </summary>
     /// <param name="fullPath"></param>
     public virtual void ImportFromFullPath(string fullPath)
@@ -69,20 +80,6 @@ namespace ToyGame.Resources
       var assimp = new AssimpContext();
       return assimp.IsImportFormatSupported(Path.GetExtension(fullPath)) ? ResourceType.Model : ResourceType.Unknown;
       // Unknown resource type, out of luck
-    }
-
-    /// <summary>
-    ///   Implemented by Resouce classes to handle loading their data into GPU memory.
-    /// </summary>
-    internal abstract void LoadToGpu(RenderContext renderContext);
-
-    /// <summary>
-    ///   Imports the resouce from a serialized (protobuf) stream. Uses RTTI to cast to the derrived type.
-    /// </summary>
-    /// <param name="stream">The stream to load from</param>
-    internal static Resource LoadFromStream(Stream stream)
-    {
-      throw new NotImplementedException();
     }
 
     internal static Resource GetDerivedResouceFromFileType(ResourceBundle resourceBundle, string fullPath)

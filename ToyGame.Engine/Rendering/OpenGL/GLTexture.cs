@@ -1,62 +1,30 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Drawing;
 using System.Threading;
+using FreeImageAPI;
 using OpenTK.Graphics.OpenGL;
 
 namespace ToyGame.Rendering.OpenGL
 {
-  internal sealed class GLTexture : IDisposable, IComparable<GLTexture>
+  internal sealed class GLTexture : GLResource<GLTexture>
   {
     #region Fields / Properties
 
-    private readonly GLHandle _glHandle;
+    public readonly uint Width;
+    public readonly uint Height;
+    public readonly GLTextureParams TextureParams;
+    private readonly IntPtr _data;
 
     #endregion
 
-    private GLTexture(RenderContext renderContext)
+    public GLTexture(RenderContext renderContext, GLTextureParams textureParams, FIBITMAP bitmap)
+      : base(renderContext, GL.GenTexture, GL.DeleteTexture)
     {
-      _glHandle = new GLHandle {RenderContext = renderContext};
-    }
-
-    public int CompareTo(GLTexture other)
-    {
-      return _glHandle.CompareTo(other._glHandle);
-    }
-
-    public void Dispose()
-    {
-      _glHandle.RenderContext.AddResourceLoadAction(() => GL.DeleteTexture(_glHandle.Handle));
-    }
-
-    public static GLTexture LoadGLTexture(RenderContext renderContext, uint width, uint height,
-      GLTextureParams textureParams, IntPtr data)
-    {
-      var texture = new GLTexture(renderContext);
-      renderContext.AddResourceLoadAction(() =>
-      {
-        texture._glHandle.Handle = GL.GenTexture();
-        GL.BindTexture(textureParams.Target, texture._glHandle.Handle);
-        if (textureParams.UseAnisotropicFiltering)
-        {
-          float maxAniso;
-          GL.GetFloat((GetPName) ExtTextureFilterAnisotropic.MaxTextureMaxAnisotropyExt, out maxAniso);
-          GL.TexParameter(textureParams.Target,
-            (TextureParameterName) ExtTextureFilterAnisotropic.TextureMaxAnisotropyExt,
-            maxAniso);
-        }
-        GL.TexParameter(textureParams.Target, TextureParameterName.TextureMagFilter, (int) textureParams.MagFilter);
-        GL.TexParameter(textureParams.Target, TextureParameterName.TextureMinFilter, (int) textureParams.MinFilter);
-        GL.TexParameter(textureParams.Target, TextureParameterName.TextureWrapS, (int) textureParams.WrapS);
-        GL.TexParameter(textureParams.Target, TextureParameterName.TextureWrapT, (int) textureParams.WrapT);
-        GL.TexImage2D(textureParams.Target, 0, PixelInternalFormat.Rgba, (int) width, (int) height, 0,
-          PixelFormat.Bgra, PixelType.UnsignedByte, data);
-        if (textureParams.GenerateMipMaps)
-        {
-          GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
-        }
-        GL.BindTexture(textureParams.Target, 0);
-      });
-      return texture;
+      Width = FreeImage.GetWidth(bitmap);
+      Height = FreeImage.GetHeight(bitmap);
+      TextureParams = textureParams;
+      _data = FreeImage.GetBits(bitmap);
     }
 
     /// <summary>
@@ -66,9 +34,34 @@ namespace ToyGame.Rendering.OpenGL
     public void Bind(TextureUnit textureUnit)
     {
       Debug.Assert(Thread.CurrentThread.Name == RenderContext.GpuThreadName);
-      Debug.Assert(_glHandle.Handle != -1);
+      Debug.Assert(GLHandle != -1);
       GL.ActiveTexture(textureUnit);
-      GL.BindTexture(TextureTarget.Texture2D, _glHandle.Handle);
+      GL.BindTexture(TextureTarget.Texture2D, GLHandle);
+    }
+
+    protected override void LoadToGpu()
+    {
+      GL.BindTexture(TextureParams.Target, GLHandle);
+      if (TextureParams.UseAnisotropicFiltering)
+      {
+        float maxAniso;
+        GL.GetFloat((GetPName) ExtTextureFilterAnisotropic.MaxTextureMaxAnisotropyExt, out maxAniso);
+        GL.TexParameter(TextureParams.Target,
+          (TextureParameterName) ExtTextureFilterAnisotropic.TextureMaxAnisotropyExt,
+          maxAniso);
+      }
+      GL.TexParameter(TextureParams.Target, TextureParameterName.TextureMagFilter, (int)TextureParams.MagFilter);
+      GL.TexParameter(TextureParams.Target, TextureParameterName.TextureMinFilter, (int)TextureParams.MinFilter);
+      GL.TexParameter(TextureParams.Target, TextureParameterName.TextureWrapS, (int)TextureParams.WrapS);
+      GL.TexParameter(TextureParams.Target, TextureParameterName.TextureWrapT, (int)TextureParams.WrapT);
+      GL.TexImage2D(TextureParams.Target, 0, PixelInternalFormat.Rgba, (int) Width, (int) Height, 0,
+        PixelFormat.Bgra, PixelType.UnsignedByte, _data);
+      FreeImage.FreeHbitmap(_data);
+      if (TextureParams.GenerateMipMaps)
+      {
+        GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
+      }
+      GL.BindTexture(TextureParams.Target, 0);
     }
   }
 }

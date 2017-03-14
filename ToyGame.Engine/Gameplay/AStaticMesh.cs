@@ -29,7 +29,12 @@ namespace ToyGame.Gameplay
       if (_vertexArrayObjects == null)
       {
         _vertexArrayObjects =
-          Model.GLMeshes.Select(glMesh => new GLVertexArrayObject(renderContext, glMesh, Material.Program)).ToArray();
+          Model.GLMeshes.Select(glMesh =>
+          {
+            var vao = new GLVertexArrayObject(renderContext, glMesh, Material.Program);
+            vao.GpuAllocate();
+            return vao;
+          }).ToArray();
       }
       for (var i = 0; i < Model.GLMeshes.Length; i++)
       {

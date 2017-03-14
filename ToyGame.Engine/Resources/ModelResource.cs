@@ -2,7 +2,6 @@
 using System.Linq;
 using Assimp;
 using OpenTK;
-using ToyGame.Rendering;
 using ToyGame.Rendering.OpenGL;
 using ToyGame.Resources.DataBlocks;
 
@@ -38,12 +37,9 @@ namespace ToyGame.Resources
           // UV1 and Colors not currently loaded
         }).ToArray();
       ((ModelDataBlock) DataBlock).Name = Path.GetFileNameWithoutExtension(fullPath);
-    }
-
-    internal override void LoadToGpu(RenderContext renderContext)
-    {
-      GLMeshes = ((ModelDataBlock) DataBlock).ModelParts.Select(part => new GLMesh(
-        renderContext, part.Positions, part.Indexes, part.Normals, part.Uv0, part.Uv1, part.Colors)).ToArray();
+      GLMeshes = ((ModelDataBlock) DataBlock).ModelParts.Select(part =>
+        new GLMesh(ResourceBundle.RenderContext, part.Positions, part.Indexes, part.Normals, part.Uv0, part.Uv1,
+          part.Colors)).ToArray();
     }
   }
 }

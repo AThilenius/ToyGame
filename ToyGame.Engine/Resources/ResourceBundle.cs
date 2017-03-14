@@ -34,6 +34,7 @@ namespace ToyGame.Resources
 
     #region Fields / Properties
 
+    public readonly RenderContext RenderContext;
     [ProtoMember(1)] public Guid Guid = Guid.NewGuid();
     [ProtoMember(2)] public BundleSourceType SourceType;
     [ProtoMember(3)] public string ProjectPath;
@@ -42,14 +43,12 @@ namespace ToyGame.Resources
     private readonly ConcurrentDictionary<Guid, Resource> _allReferances =
       new ConcurrentDictionary<Guid, Resource>();
 
-    private readonly RenderContext _renderContext;
-
     #endregion
 
     internal ResourceBundle(RenderContext renderContext, string projectPath,
       BundleSourceType sourceType = BundleSourceType.ProjectPath)
     {
-      _renderContext = renderContext;
+      RenderContext = renderContext;
       ProjectPath = projectPath;
       SourceType = sourceType;
     }
@@ -81,7 +80,7 @@ namespace ToyGame.Resources
           throw new ResourceImportException("Failed to save to: " + toPath);
         }
       }
-      resource.LoadToGpu(_renderContext);
+      resource.GLResource?.GpuAllocate();
       _allReferances.TryAdd(resource.Guid, resource);
       return resource;
     }

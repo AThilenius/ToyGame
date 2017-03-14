@@ -1,6 +1,5 @@
 ﻿using System.IO;
 using FreeImageAPI;
-using ToyGame.Rendering;
 using ToyGame.Rendering.OpenGL;
 using ToyGame.Resources.DataBlocks;
 
@@ -13,6 +12,7 @@ namespace ToyGame.Resources
     public uint Width => ((TextureDataBlock) DataBlock).Width;
     public uint Height => ((TextureDataBlock) DataBlock).Height;
     public byte[] RawData => ((TextureDataBlock) DataBlock).RawData;
+    internal override IGLResource GLResource => GLTexture;
     internal GLTexture GLTexture;
 
     #endregion
@@ -42,20 +42,14 @@ namespace ToyGame.Resources
       var bitsPerPixel = FreeImage.GetBPP(image);
       // Convert all images (for now) to full 32bit.
       var bitmap32 = bitsPerPixel == 32 ? image : FreeImage.ConvertTo32Bits(image);
+      // Save everything to the TextureDataBlock (for saving the Resource)
       ((TextureDataBlock) DataBlock).Width = FreeImage.GetWidth(bitmap32);
       ((TextureDataBlock) DataBlock).Height = FreeImage.GetHeight(bitmap32);
       var stream = new MemoryStream();
       FreeImage.SaveToStream(bitmap32, stream, FREE_IMAGE_FORMAT.FIF_TARGA);
       ((TextureDataBlock) DataBlock).RawData = stream.ToArray();
-    }
-
-    internal override void LoadToGpu(RenderContext renderContext)
-    {
-      var stream = new MemoryStream(RawData);
-      var image = FreeImage.LoadFromStream(stream, FREE_IMAGE_LOAD_FLAGS.DEFAULT);
-      var data = FreeImage.GetBits(image);
-      GLTexture = GLTexture.LoadGLTexture(renderContext, Width, Height, GLTextureParams.Default, data);
-      FreeImage.FreeHbitmap(data);
+      // Load the IGLResource
+      GLTexture = new GLTexture(ResourceBundle.RenderContext, GLTextureParams.Default, bitmap32);
     }
   }
 }

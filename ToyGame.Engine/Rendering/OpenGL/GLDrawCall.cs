@@ -172,7 +172,7 @@ namespace ToyGame.Rendering.OpenGL
       {
         return textuBindCountDiff;
       }
-      // Use an old fasion and ugly but way faster loop for this all of this
+      // Bind an old fasion and ugly but way faster loop for this all of this
       for (var i = 0; i < TextureBinds.Length; i++)
       {
         var textureBindDiff = TextureBinds[i].CompareTo(other.TextureBinds[i]);
@@ -229,7 +229,7 @@ namespace ToyGame.Rendering.OpenGL
       // GL Program
       if (fromCall == null || Program.CompareTo(fromCall.Program) != 0)
       {
-        programSwapAction = () => Program.Use();
+        programSwapAction = () => Program.Bind();
       }
       // GL State
       if (fromCall == null || State.CompareTo(fromCall.State) != 0)
