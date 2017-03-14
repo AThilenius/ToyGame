@@ -40,10 +40,10 @@ namespace ToyGame.Resources
       ((ModelDataBlock) DataBlock).Name = Path.GetFileNameWithoutExtension(fullPath);
     }
 
-    internal override void LoadToGpu(RenderCore renderCore)
+    internal override void LoadToGpu(RenderContext renderContext)
     {
       GLMeshes = ((ModelDataBlock) DataBlock).ModelParts.Select(part => new GLMesh(
-        renderCore, part.Positions, part.Indexes, part.Normals, part.Uv0, part.Uv1, part.Colors)).ToArray();
+        renderContext, part.Positions, part.Indexes, part.Normals, part.Uv0, part.Uv1, part.Colors)).ToArray();
     }
   }
 }

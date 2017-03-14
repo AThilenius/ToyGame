@@ -8,7 +8,7 @@ using ToyGame.Rendering.OpenGL;
 
 namespace ToyGame.Rendering
 {
-  public class RenderCore
+  public class RenderContext
   {
     #region Fields / Properties
 
@@ -29,7 +29,7 @@ namespace ToyGame.Rendering
 
     #endregion
 
-    public RenderCore(IWindowInfo windowInfo)
+    public RenderContext(IWindowInfo windowInfo)
     {
       _windowInfo = windowInfo;
       _gpuThread = new Thread(DoGpuThreadWork) {Name = GpuThreadName};

@@ -24,17 +24,17 @@ namespace ToyGame.Gameplay
       Material = material;
     }
 
-    public void EnqueueDrawCalls(RenderCore renderCore, ACamera camera)
+    public void EnqueueDrawCalls(RenderContext renderContext, ACamera camera)
     {
       if (_vertexArrayObjects == null)
       {
         _vertexArrayObjects =
-          Model.GLMeshes.Select(glMesh => new GLVertexArrayObject(renderCore, glMesh, Material.Program)).ToArray();
+          Model.GLMeshes.Select(glMesh => new GLVertexArrayObject(renderContext, glMesh, Material.Program)).ToArray();
       }
       for (var i = 0; i < Model.GLMeshes.Length; i++)
       {
         var glMesh = Model.GLMeshes[i];
-        renderCore.AddSingleFrameDrawCall(new GLDrawCall(
+        renderContext.AddSingleFrameDrawCall(new GLDrawCall(
           Material.Program,
           Material.GenerateTexturebinds(),
           _vertexArrayObjects[i],

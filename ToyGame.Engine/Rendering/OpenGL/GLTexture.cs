@@ -13,9 +13,9 @@ namespace ToyGame.Rendering.OpenGL
 
     #endregion
 
-    private GLTexture(RenderCore renderCore)
+    private GLTexture(RenderContext renderContext)
     {
-      _glHandle = new GLHandle {RenderCore = renderCore};
+      _glHandle = new GLHandle {RenderContext = renderContext};
     }
 
     public int CompareTo(GLTexture other)
@@ -25,14 +25,14 @@ namespace ToyGame.Rendering.OpenGL
 
     public void Dispose()
     {
-      _glHandle.RenderCore.AddResourceLoadAction(() => GL.DeleteTexture(_glHandle.Handle));
+      _glHandle.RenderContext.AddResourceLoadAction(() => GL.DeleteTexture(_glHandle.Handle));
     }
 
-    public static GLTexture LoadGLTexture(RenderCore renderCore, uint width, uint height,
+    public static GLTexture LoadGLTexture(RenderContext renderContext, uint width, uint height,
       GLTextureParams textureParams, IntPtr data)
     {
-      var texture = new GLTexture(renderCore);
-      renderCore.AddResourceLoadAction(() =>
+      var texture = new GLTexture(renderContext);
+      renderContext.AddResourceLoadAction(() =>
       {
         texture._glHandle.Handle = GL.GenTexture();
         GL.BindTexture(textureParams.Target, texture._glHandle.Handle);
@@ -65,7 +65,7 @@ namespace ToyGame.Rendering.OpenGL
     /// <param name="textureUnit"></param>
     public void Bind(TextureUnit textureUnit)
     {
-      Debug.Assert(Thread.CurrentThread.Name == RenderCore.GpuThreadName);
+      Debug.Assert(Thread.CurrentThread.Name == RenderContext.GpuThreadName);
       Debug.Assert(_glHandle.Handle != -1);
       GL.ActiveTexture(textureUnit);
       GL.BindTexture(TextureTarget.Texture2D, _glHandle.Handle);

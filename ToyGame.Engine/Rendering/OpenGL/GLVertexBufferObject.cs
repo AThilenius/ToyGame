@@ -17,25 +17,25 @@ namespace ToyGame.Rendering.OpenGL
 
     #endregion
 
-    private GLVertexBufferObject(RenderCore renderCore, BufferTarget bufferTarget, GLVertexAttribute[] vertexAttributes,
+    private GLVertexBufferObject(RenderContext renderContext, BufferTarget bufferTarget, GLVertexAttribute[] vertexAttributes,
       int bufferCount)
     {
       VertexAttributes = vertexAttributes;
       _target = bufferTarget;
       BufferCount = bufferCount;
-      _glHandle = new GLHandle {RenderCore = renderCore};
+      _glHandle = new GLHandle {RenderContext = renderContext};
     }
 
     public void Dispose()
     {
-      _glHandle.RenderCore.AddResourceLoadAction(() => GL.DeleteBuffer(_glHandle.Handle));
+      _glHandle.RenderContext.AddResourceLoadAction(() => GL.DeleteBuffer(_glHandle.Handle));
     }
 
-    public static GLVertexBufferObject FromData<T>(RenderCore renderCore, T[] data, BufferTarget bufferTarget,
+    public static GLVertexBufferObject FromData<T>(RenderContext renderContext, T[] data, BufferTarget bufferTarget,
       BufferUsageHint bufferUsageHint, params GLVertexAttribute[] vertexAttributes) where T : struct
     {
-      var vbo = new GLVertexBufferObject(renderCore, bufferTarget, vertexAttributes, data.Length);
-      renderCore.AddResourceLoadAction(() =>
+      var vbo = new GLVertexBufferObject(renderContext, bufferTarget, vertexAttributes, data.Length);
+      renderContext.AddResourceLoadAction(() =>
       {
         vbo._glHandle.Handle = GL.GenBuffer();
         vbo.Bind();
@@ -49,7 +49,7 @@ namespace ToyGame.Rendering.OpenGL
     /// </summary>
     public void Bind()
     {
-      Debug.Assert(Thread.CurrentThread.Name == RenderCore.GpuThreadName);
+      Debug.Assert(Thread.CurrentThread.Name == RenderContext.GpuThreadName);
       Debug.Assert(_glHandle.Handle != -1);
       GL.BindBuffer(_target, _glHandle.Handle);
     }

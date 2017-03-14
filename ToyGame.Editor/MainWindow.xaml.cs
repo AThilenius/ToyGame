@@ -23,13 +23,12 @@ namespace ToyGame.Editor
 
     private readonly Stopwatch _stopWatch = Stopwatch.StartNew();
     private readonly Timer _timer = new Timer {Enabled = true, Interval = 16};
-    private readonly UWorld _world = new UWorld();
+    private XWorld _world;
     private ACamera _camera;
     private GLControl _glControl;
     private AStaticMesh _staticMesh;
     private ResourceBundle _resourceBundle;
     private ToyEngineContext _context = new ToyEngineContext();
-    private RenderCore _renderCore;
 
     #endregion
 
@@ -56,7 +55,7 @@ namespace ToyGame.Editor
     private void Window_Loaded(object sender, RoutedEventArgs e)
     {
       //Console.Text += "gl version: " + GL.GetString(StringName.Version);
-      _renderCore = new RenderCore(_glControl.WindowInfo);
+      _world = new XWorld(_glControl.WindowInfo);
 
       Console.Text += "\nWindow size: " + _glControl.Width + "x" + _glControl.Height;
       _camera = new ACamera(_renderCore)
@@ -78,7 +77,7 @@ namespace ToyGame.Editor
         Transform = {Scale = new Vector3(0.5f), Position = new Vector3(0, -5, -30)}
       };
 
-      var level = new ULevel();
+      var level = new XLevel();
       _world.AddLevel(level);
       level.AddActor(_staticMesh);
       level.AddActor(_camera);

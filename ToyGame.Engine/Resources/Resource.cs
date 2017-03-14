@@ -74,7 +74,7 @@ namespace ToyGame.Resources
     /// <summary>
     ///   Implemented by Resouce classes to handle loading their data into GPU memory.
     /// </summary>
-    internal abstract void LoadToGpu(RenderCore renderCore);
+    internal abstract void LoadToGpu(RenderContext renderContext);
 
     /// <summary>
     ///   Imports the resouce from a serialized (protobuf) stream. Uses RTTI to cast to the derrived type.

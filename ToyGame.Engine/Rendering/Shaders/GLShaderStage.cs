@@ -12,10 +12,10 @@ namespace ToyGame.Rendering.Shaders
 
     #endregion
 
-    public GLShaderStage(RenderCore renderCore, ShaderType type, string code)
+    public GLShaderStage(RenderContext renderContext, ShaderType type, string code)
     {
-      GLHandle = new GLHandle {RenderCore = renderCore};
-      renderCore.AddResourceLoadAction(() =>
+      GLHandle = new GLHandle {RenderContext = renderContext};
+      renderContext.AddResourceLoadAction(() =>
       {
         GLHandle.Handle = GL.CreateShader(type);
         // Compile vertex shader
@@ -34,7 +34,7 @@ namespace ToyGame.Rendering.Shaders
 
     public void Dispose()
     {
-      GLHandle.RenderCore.AddResourceLoadAction(() => GL.DeleteShader(GLHandle.Handle));
+      GLHandle.RenderContext.AddResourceLoadAction(() => GL.DeleteShader(GLHandle.Handle));
     }
   }
 }

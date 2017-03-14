@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using ProtoBuf;
 
 namespace ToyGame.Gameplay
 {
@@ -11,7 +12,7 @@ namespace ToyGame.Gameplay
       get { return _children.AsReadOnly(); }
     }
 
-    public UTransform Transform;
+    public XTransform Transform;
 
     public AActor Parent
     {
@@ -19,7 +20,7 @@ namespace ToyGame.Gameplay
       set { SetParent(value); }
     }
 
-    public ULevel Level
+    public XLevel Level
     {
       get { return _level; }
       set
@@ -30,14 +31,14 @@ namespace ToyGame.Gameplay
     }
 
     private readonly List<AActor> _children = new List<AActor>();
-    private ULevel _level;
+    private XLevel _level;
     private AActor _parent;
 
     #endregion
 
     public AActor()
     {
-      Transform = new UTransform(this);
+      Transform = new XTransform(this);
     }
 
     public List<T> GetInstancesOf<T>(bool recursive = true) where T : AActor

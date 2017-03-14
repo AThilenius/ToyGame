@@ -9,7 +9,7 @@
 	<StackPanel>
 		<Expander IsExpanded="True" Margin="0 0 0 10">
 			<Expander.Header>
-				<TextBlock>Transform</TextBlock>
+				<TextBlock>XTransform</TextBlock>
 			</Expander.Header>
 
 			<StackPanel>

@@ -42,14 +42,14 @@ namespace ToyGame.Resources
     private readonly ConcurrentDictionary<Guid, Resource> _allReferances =
       new ConcurrentDictionary<Guid, Resource>();
 
-    private readonly RenderCore _renderCore;
+    private readonly RenderContext _renderContext;
 
     #endregion
 
-    internal ResourceBundle(RenderCore renderCore, string projectPath,
+    internal ResourceBundle(RenderContext renderContext, string projectPath,
       BundleSourceType sourceType = BundleSourceType.ProjectPath)
     {
-      _renderCore = renderCore;
+      _renderContext = renderContext;
       ProjectPath = projectPath;
       SourceType = sourceType;
     }
@@ -81,7 +81,7 @@ namespace ToyGame.Resources
           throw new ResourceImportException("Failed to save to: " + toPath);
         }
       }
-      resource.LoadToGpu(_renderCore);
+      resource.LoadToGpu(_renderContext);
       _allReferances.TryAdd(resource.Guid, resource);
       return resource;
     }

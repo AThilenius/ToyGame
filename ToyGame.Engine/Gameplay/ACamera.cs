@@ -20,14 +20,14 @@ namespace ToyGame.Gameplay
     public Matrix4 ProjectionMatrix { get; private set; }
     public Matrix4 ViewMatrix { get; private set; }
     private readonly GLUniformBuffer _uniformBuffer;
-    private readonly RenderCore _renderCore;
+    private readonly RenderContext _renderContext;
 
     #endregion
 
-    public ACamera(RenderCore renderCore)
+    public ACamera(RenderContext renderContext)
     {
-      _renderCore = renderCore;
-      _uniformBuffer = new GLUniformBuffer(renderCore, Marshal.SizeOf<Matrix4>()*2, 0);
+      _renderContext = renderContext;
+      _uniformBuffer = new GLUniformBuffer(renderContext, Marshal.SizeOf<Matrix4>()*2, 0);
     }
 
     public void PreRender()
@@ -35,7 +35,7 @@ namespace ToyGame.Gameplay
       ProjectionMatrix = Matrix4.CreatePerspectiveFieldOfView(FieldOfView, AspectRatio, 1f, 10000f);
       Transform.Scale = Vector3.One;
       ViewMatrix = Transform.GetWorldMatrix();
-      _renderCore.AddPreRenderAction(() =>
+      _renderContext.AddPreRenderAction(() =>
       {
         GL.Viewport(Viewport);
         GL.ClearColor(ClearColor);

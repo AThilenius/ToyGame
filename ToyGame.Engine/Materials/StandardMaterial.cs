@@ -18,11 +18,11 @@ namespace ToyGame.Materials
 
     #endregion
 
-    public StandardMaterial(RenderCore renderCore)
+    public StandardMaterial(RenderContext renderContext)
     {
       if (_glStandardShader == null)
       {
-        _glStandardShader = new GLStandardShader(renderCore);
+        _glStandardShader = new GLStandardShader(renderContext);
       }
       Program = _glStandardShader;
     }

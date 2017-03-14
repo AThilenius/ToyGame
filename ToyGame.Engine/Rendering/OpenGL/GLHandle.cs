@@ -3,7 +3,7 @@
 namespace ToyGame.Rendering.OpenGL
 {
   /// <summary>
-  ///   A GLHandle is tied to a specific RenderCore. This must be so that calling
+  ///   A GLHandle is tied to a specific RenderContext. This must be so that calling
   ///   code knows who to marshal the GL.DeleteBuffer / GL.DeleteTexture / ... calls to.
   /// </summary>
   internal class GLHandle : IComparable<GLHandle>
@@ -11,7 +11,7 @@ namespace ToyGame.Rendering.OpenGL
     #region Fields / Properties
 
     public volatile int Handle = -1;
-    public RenderCore RenderCore;
+    public RenderContext RenderContext;
 
     #endregion
 

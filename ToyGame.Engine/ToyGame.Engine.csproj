@@ -68,9 +68,9 @@
   <ItemGroup>
     <Compile Include="Gameplay\AActor.cs" />
     <Compile Include="Gameplay\ACamera.cs" />
-    <Compile Include="Gameplay\IRenderable.cs" />
-    <Compile Include="Gameplay\ULevel.cs" />
-    <Compile Include="Gameplay\UWorld.cs" />
+    <Compile Include="Rendering\IRenderable.cs" />
+    <Compile Include="Gameplay\XLevel.cs" />
+    <Compile Include="Gameplay\XWorld.cs" />
     <Compile Include="Materials\VoxelMaterial.cs" />
     <Compile Include="Materials\StandardMaterial.cs" />
     <Compile Include="Materials\Material.cs" />
@@ -85,13 +85,14 @@
     <Compile Include="Rendering\OpenGL\GLDrawCall.cs" />
     <Compile Include="Rendering\OpenGL\GLMesh.cs" />
     <Compile Include="Rendering\OpenGL\GLHandle.cs" />
+    <Compile Include="Rendering\OpenGL\GLResource.cs" />
     <Compile Include="Rendering\OpenGL\GLTexture.cs" />
     <Compile Include="Rendering\OpenGL\GLTextureParams.cs" />
     <Compile Include="Rendering\OpenGL\GLUniformBuffer.cs" />
     <Compile Include="Rendering\OpenGL\GLVertexArrayObject.cs" />
     <Compile Include="Rendering\OpenGL\GLVertexAttribute.cs" />
     <Compile Include="Rendering\OpenGL\GLVertexBufferObject.cs" />
-    <Compile Include="Rendering\RenderCore.cs" />
+    <Compile Include="Rendering\RenderContext.cs" />
     <Compile Include="Rendering\Shaders\GLShaderProgram.cs" />
     <Compile Include="Rendering\Shaders\GLShaderStage.cs" />
     <Compile Include="Rendering\Shaders\GLStandardShader.cs" />
@@ -102,7 +103,7 @@
     <Compile Include="Resources\ModelResource.cs" />
     <Compile Include="Resources\Resource.cs" />
     <Compile Include="Resources\ResourceBundle.cs" />
-    <Compile Include="Gameplay\UTransform.cs" />
+    <Compile Include="Gameplay\XTransform.cs" />
     <Compile Include="Resources\ResourceBundleManager.cs" />
     <Compile Include="Resources\TextureResource.cs" />
     <Compile Include="Resources\VoxResource.cs" />

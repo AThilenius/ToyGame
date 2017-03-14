@@ -6,12 +6,12 @@ namespace ToyGame.Rendering.Shaders
   {
     // Uniforms
 
-    public GLStandardShader(RenderCore renderCore) : base(renderCore)
+    public GLStandardShader(RenderContext renderContext) : base(renderContext)
     {
       Compile(new[]
       {
-        new GLShaderStage(renderCore, ShaderType.VertexShader, _vertexShaderCode),
-        new GLShaderStage(renderCore, ShaderType.FragmentShader, _fragmentShaderCode)
+        new GLShaderStage(renderContext, ShaderType.VertexShader, _vertexShaderCode),
+        new GLShaderStage(renderContext, ShaderType.FragmentShader, _fragmentShaderCode)
       }, new[] {"position", "uv0", "normal"}, new string[0]);
     }
 

@@ -17,9 +17,9 @@ namespace ToyGame.Rendering.Shaders
 
     #endregion
 
-    protected GLShaderProgram(RenderCore renderCore)
+    protected GLShaderProgram(RenderContext renderContext)
     {
-      GLHandle = new GLHandle {RenderCore = renderCore};
+      GLHandle = new GLHandle {RenderContext = renderContext};
     }
 
     public int CompareTo(GLShaderProgram other)
@@ -29,7 +29,7 @@ namespace ToyGame.Rendering.Shaders
 
     public void Dispose()
     {
-      GLHandle.RenderCore.AddResourceLoadAction(() => GL.DeleteProgram(GLHandle.Handle));
+      GLHandle.RenderContext.AddResourceLoadAction(() => GL.DeleteProgram(GLHandle.Handle));
     }
 
     public int GetAttributeLocation(string name)
@@ -49,20 +49,15 @@ namespace ToyGame.Rendering.Shaders
     /// </summary>
     public void Use()
     {
-      Debug.Assert(Thread.CurrentThread.Name == RenderCore.GpuThreadName);
+      Debug.Assert(Thread.CurrentThread.Name == RenderContext.GpuThreadName);
       Debug.Assert(GLHandle.Handle != -1);
       GL.UseProgram(GLHandle.Handle);
     }
 
     protected void Compile(GLShaderStage[] shaders, string[] attributes, string[] uniforms)
     {
-      GLHandle.RenderCore.AddResourceLoadAction(() =>
+      GLHandle.RenderContext.AddResourceLoadAction(() =>
       {
-        {
-          var error = GL.GetError();
-          if (error != ErrorCode.NoError)
-            throw new Exception("Error after use: " + error);
-        }
         GLHandle.Handle = GL.CreateProgram();
         var allUniforms = new List<string>();
         allUniforms.AddRange(new[] {"modelMatrix"});
@@ -77,11 +72,6 @@ namespace ToyGame.Rendering.Shaders
           GL.DetachShader(GLHandle.Handle, shader.GLHandle.Handle);
         }
         GL.UseProgram(GLHandle.Handle);
-        {
-          var error = GL.GetError();
-          if (error != ErrorCode.NoError)
-            throw new Exception("Error after use: " + error);
-        }
         // Get all Attribute locations
         foreach (var attrib in attributes)
         {

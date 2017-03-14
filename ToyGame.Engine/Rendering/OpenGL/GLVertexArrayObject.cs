@@ -17,10 +17,10 @@ namespace ToyGame.Rendering.OpenGL
 
     #endregion
 
-    public GLVertexArrayObject(RenderCore renderCore, GLMesh mesh, GLShaderProgram shaderProgram)
+    public GLVertexArrayObject(RenderContext renderContext, GLMesh mesh, GLShaderProgram shaderProgram)
     {
-      _glHandle = new GLHandle {RenderCore = renderCore};
-      renderCore.AddResourceLoadAction(() =>
+      _glHandle = new GLHandle {RenderContext = renderContext};
+      renderContext.AddResourceLoadAction(() =>
       {
         _glHandle.Handle = GL.GenVertexArray();
         // Bind the VAO
@@ -46,7 +46,7 @@ namespace ToyGame.Rendering.OpenGL
 
     public void Dispose()
     {
-      _glHandle.RenderCore.AddResourceLoadAction(() => GL.DeleteVertexArray(_glHandle.Handle));
+      _glHandle.RenderContext.AddResourceLoadAction(() => GL.DeleteVertexArray(_glHandle.Handle));
     }
 
     /// <summary>
@@ -54,7 +54,7 @@ namespace ToyGame.Rendering.OpenGL
     /// </summary>
     public void Bind()
     {
-      Debug.Assert(Thread.CurrentThread.Name == RenderCore.GpuThreadName);
+      Debug.Assert(Thread.CurrentThread.Name == RenderContext.GpuThreadName);
       Debug.Assert(_glHandle.Handle != -1);
       GL.BindVertexArray(_glHandle.Handle);
     }

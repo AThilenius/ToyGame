@@ -49,12 +49,12 @@ namespace ToyGame.Resources
       ((TextureDataBlock) DataBlock).RawData = stream.ToArray();
     }
 
-    internal override void LoadToGpu(RenderCore renderCore)
+    internal override void LoadToGpu(RenderContext renderContext)
     {
       var stream = new MemoryStream(RawData);
       var image = FreeImage.LoadFromStream(stream, FREE_IMAGE_LOAD_FLAGS.DEFAULT);
       var data = FreeImage.GetBits(image);
-      GLTexture = GLTexture.LoadGLTexture(renderCore, Width, Height, GLTextureParams.Default, data);
+      GLTexture = GLTexture.LoadGLTexture(renderContext, Width, Height, GLTextureParams.Default, data);
       FreeImage.FreeHbitmap(data);
     }
   }
