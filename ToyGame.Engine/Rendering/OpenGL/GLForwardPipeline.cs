@@ -20,13 +20,14 @@ namespace ToyGame.Rendering.OpenGL
     {
       base.RenderImmediate(camera, target);
       // A forward renderer is pretty damn simple!
-      //target.Bind();
+      target.Bind();
+      // ReSharper disable once ForCanBeConvertedToForeach
       for (var i = 0; i < _drawCallBatch.FrontBuffer.Length; i++)
       {
         _drawCallBatch.FrontBuffer[i].Draw();
         DebugUtils.GLErrorCheck();
       }
-      //target.FinalizeRender();
+      target.FinalizeRender();
     }
 
     public override void UpdateDrawCallBatches()

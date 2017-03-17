@@ -31,6 +31,7 @@ namespace ToyGame.Rendering
 
     public const string GpuThreadName = "OpenGL Render Thread";
     public IWindowInfo MainWindowInfo;
+    public GraphicsContext GLGraphicsContext;
     public static RenderContext Active { get; private set; }
     private readonly Thread _gpuThread;
     private readonly object _swapLock = new object();
@@ -108,9 +109,9 @@ namespace ToyGame.Rendering
     {
       lock (_swapLock)
       {
-        var graphicsContext = new GraphicsContext(GraphicsMode.Default, MainWindowInfo, 4, 2, GraphicsContextFlags.Debug);
-        graphicsContext.LoadAll();
-        graphicsContext.MakeCurrent(MainWindowInfo);
+        GLGraphicsContext = new GraphicsContext(GraphicsMode.Default, MainWindowInfo, 4, 2, GraphicsContextFlags.Debug);
+        GLGraphicsContext.LoadAll();
+        GLGraphicsContext.MakeCurrent(MainWindowInfo);
         while (!_shutdown)
         {
           // For now, just load ALL resources at once. In the future, I'll throttle this to only use
@@ -132,7 +133,6 @@ namespace ToyGame.Rendering
               var pipelineRun = _frontPipelineRunsBuffer[i];
               pipelineRun.Pipeline.RenderImmediate(pipelineRun.Camera, pipelineRun.RenderTarget);
               DebugUtils.GLErrorCheck();
-              graphicsContext.SwapBuffers();
             }
           }
           DebugUtils.GLErrorCheck();
