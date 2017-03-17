@@ -18,12 +18,12 @@ namespace ToyGame.Materials
 
     #endregion
 
-    public StandardMaterial(RenderContext renderContext)
+    public StandardMaterial()
     {
       if (_glStandardShader == null)
       {
-        _glStandardShader = new GLStandardShader(renderContext);
-        _glStandardShader.GpuAllocate();
+        _glStandardShader = new GLStandardShader();
+        _glStandardShader.GpuAllocateDeferred();
       }
       Program = _glStandardShader;
     }

@@ -1,9 +1,10 @@
 ﻿using ToyGame.Gameplay;
+using ToyGame.Rendering.OpenGL;
 
 namespace ToyGame.Rendering
 {
   public interface IRenderable
   {
-    void EnqueueDrawCalls(RenderContext renderContext, ACamera camera);
+    void EnqueueDrawCalls(GLDrawCallBatch drawCallbatch);
   }
 }

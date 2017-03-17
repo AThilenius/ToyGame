@@ -4,10 +4,10 @@ namespace ToyGame.Rendering.Shaders
 {
   internal class GLVoxelShader : GLShaderProgram
   {
-    public GLVoxelShader(RenderContext renderContext) : base(renderContext, new[]
+    public GLVoxelShader() : base(new[]
     {
-      new GLShaderStage(renderContext, ShaderType.VertexShader, VertexShaderCode),
-      new GLShaderStage(renderContext, ShaderType.FragmentShader, FragmentShaderCode)
+      new GLShaderStage(ShaderType.VertexShader, VertexShaderCode),
+      new GLShaderStage(ShaderType.FragmentShader, FragmentShaderCode)
     }, new[] {"position", "uv0", "normal"},
       new[]
       {

@@ -69,8 +69,8 @@
     <Compile Include="Gameplay\AActor.cs" />
     <Compile Include="Gameplay\ACamera.cs" />
     <Compile Include="Rendering\IRenderable.cs" />
-    <Compile Include="Gameplay\XLevel.cs" />
-    <Compile Include="Gameplay\XWorld.cs" />
+    <Compile Include="Gameplay\Level.cs" />
+    <Compile Include="Gameplay\World.cs" />
     <Compile Include="Materials\VoxelMaterial.cs" />
     <Compile Include="Materials\StandardMaterial.cs" />
     <Compile Include="Materials\Material.cs" />
@@ -81,9 +81,13 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="Rendering\OpenGL\DeferredPipeline.cs" />
+    <Compile Include="Rendering\OpenGL\GLDeferredPipeline.cs" />
     <Compile Include="Rendering\OpenGL\GLDrawCall.cs" />
+    <Compile Include="Rendering\OpenGL\GLDrawCallBatch.cs" />
+    <Compile Include="Rendering\OpenGL\GLForwardPipeline.cs" />
     <Compile Include="Rendering\OpenGL\GLMesh.cs" />
+    <Compile Include="Rendering\IRenderTarget.cs" />
+    <Compile Include="Rendering\OpenGL\GLRenderTargetViewport.cs" />
     <Compile Include="Rendering\OpenGL\GLResource.cs" />
     <Compile Include="Rendering\OpenGL\GLTexture.cs" />
     <Compile Include="Rendering\OpenGL\GLTextureParams.cs" />
@@ -91,7 +95,9 @@
     <Compile Include="Rendering\OpenGL\GLVertexArrayObject.cs" />
     <Compile Include="Rendering\OpenGL\GLVertexAttribute.cs" />
     <Compile Include="Rendering\OpenGL\GLVertexBufferObject.cs" />
+    <Compile Include="Rendering\RenderPipeline.cs" />
     <Compile Include="Rendering\RenderContext.cs" />
+    <Compile Include="Rendering\RenderViewport.cs" />
     <Compile Include="Rendering\Shaders\GLShaderProgram.cs" />
     <Compile Include="Rendering\Shaders\GLShaderStage.cs" />
     <Compile Include="Rendering\Shaders\GLStandardShader.cs" />
@@ -102,7 +108,7 @@
     <Compile Include="Resources\ModelResource.cs" />
     <Compile Include="Resources\Resource.cs" />
     <Compile Include="Resources\ResourceBundle.cs" />
-    <Compile Include="Gameplay\XTransform.cs" />
+    <Compile Include="Gameplay\Transform.cs" />
     <Compile Include="Resources\ResourceBundleManager.cs" />
     <Compile Include="Resources\TextureResource.cs" />
     <Compile Include="Resources\VoxResource.cs" />
@@ -110,7 +116,8 @@
     <Compile Include="Serialization\Surrogates\ResourceSurrogate.cs" />
     <Compile Include="Serialization\Surrogates\Vector2Surrogate.cs" />
     <Compile Include="Serialization\Surrogates\Vector3Surrogate.cs" />
-    <Compile Include="ToyEngineContext.cs" />
+    <Compile Include="ToyEngine.cs" />
+    <Compile Include="Utilities\DebugUtils.cs" />
     <Compile Include="Utilities\EventStream.cs" />
     <Compile Include="Utilities\Extensions.cs" />
     <Compile Include="Utilities\MarshalableThread.cs" />

@@ -39,9 +39,9 @@ namespace ToyGame.Resources
       return bundle;
     }
 
-    public ResourceBundle AddBundleFromProjectPath(RenderContext renderContext, string projectPath)
+    public ResourceBundle AddBundleFromProjectPath(string projectPath)
     {
-      var bundle = new ResourceBundle(renderContext, projectPath);
+      var bundle = new ResourceBundle(projectPath);
       Console.WriteLine(@"Need to load all .xassets in the folder here...");
       _bundlesByGuid.TryAdd(bundle.Guid, bundle);
       return bundle;

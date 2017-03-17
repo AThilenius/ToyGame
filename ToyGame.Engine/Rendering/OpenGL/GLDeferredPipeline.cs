@@ -3,7 +3,7 @@ using OpenTK.Graphics.OpenGL;
 
 namespace ToyGame.Rendering.OpenGL
 {
-  internal class DeferredPipline
+  internal class GLDeferredPipeline
   {
     #region Fields / Properties
 
@@ -14,7 +14,7 @@ namespace ToyGame.Rendering.OpenGL
 
     #endregion
 
-    public DeferredPipline(int screenWidth, int screenHeight)
+    public GLDeferredPipeline(int screenWidth, int screenHeight)
     {
       GL.BindFramebuffer(FramebufferTarget.Framebuffer, _gFrameBuffer);
       // Position GBuffer

@@ -15,7 +15,7 @@ namespace ToyGame.Rendering.OpenGL
 
     #endregion
 
-    public GLUniformBuffer(RenderContext renderContext, int size, int bindingBlock) : base(renderContext)
+    public GLUniformBuffer(int size, int bindingBlock)
     {
       Size = size;
       _bindingBlock = bindingBlock;
@@ -29,7 +29,7 @@ namespace ToyGame.Rendering.OpenGL
     public void BufferMatrix4(int offset, Matrix4[] data)
     {
       var size = Marshal.SizeOf<Matrix4>()*data.Length;
-      RenderContext.AddPreRenderAction(() =>
+      RenderContext.Active.AddResourceLoadAction(() =>
       {
         Debug.Assert(GLHandle != -1);
         GL.BindBuffer(BufferTarget.UniformBuffer, GLHandle);

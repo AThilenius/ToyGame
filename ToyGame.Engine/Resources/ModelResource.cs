@@ -38,8 +38,7 @@ namespace ToyGame.Resources
         }).ToArray();
       ((ModelDataBlock) DataBlock).Name = Path.GetFileNameWithoutExtension(fullPath);
       GLMeshes = ((ModelDataBlock) DataBlock).ModelParts.Select(part =>
-        new GLMesh(ResourceBundle.RenderContext, part.Positions, part.Indexes, part.Normals, part.Uv0, part.Uv1,
-          part.Colors)).ToArray();
+        new GLMesh(part.Positions, part.Indexes, part.Normals, part.Uv0, part.Uv1, part.Colors)).ToArray();
     }
   }
 }

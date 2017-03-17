@@ -2,6 +2,7 @@
 using System.Linq;
 using OpenTK.Graphics.OpenGL;
 using ToyGame.Rendering.Shaders;
+using ToyGame.Utilities;
 
 namespace ToyGame.Rendering.OpenGL
 {
@@ -9,12 +10,12 @@ namespace ToyGame.Rendering.OpenGL
   {
     #region Types
 
-    public class GLState : IComparable<GLState>
+    internal class GLState : IComparable<GLState>
     {
       #region Fields / Properties
 
       public static readonly GLState Default = new GLState(CullFaceMode.Back, DepthFunction.Lequal,
-        BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha, EnableCap.Texture2D,
+        BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha, 
         EnableCap.Blend,
         EnableCap.DepthTest,
         EnableCap.Multisample);
@@ -51,10 +52,12 @@ namespace ToyGame.Rendering.OpenGL
         foreach (var enableCap in EnableCaps)
         {
           GL.Enable(enableCap);
+          DebugUtils.GLErrorCheck();
         }
         GL.CullFace(CullFaceMode);
         GL.BlendFunc(BlendingFactorSrc, BlendingFactorDest);
         GL.DepthFunc(DepthFunction);
+        DebugUtils.GLErrorCheck();
       }
 
       public void DisableState()
@@ -62,14 +65,17 @@ namespace ToyGame.Rendering.OpenGL
         foreach (var enableCap in EnableCaps)
         {
           GL.Disable(enableCap);
+          DebugUtils.GLErrorCheck();
         }
         foreach (var enableCap in Default.EnableCaps)
         {
           GL.Enable(enableCap);
+          DebugUtils.GLErrorCheck();
         }
         GL.CullFace(Default.CullFaceMode);
         GL.BlendFunc(Default.BlendingFactorSrc, BlendingFactorDest);
         GL.DepthFunc(Default.DepthFunction);
+        DebugUtils.GLErrorCheck();
       }
 
       public override string ToString()
@@ -78,7 +84,7 @@ namespace ToyGame.Rendering.OpenGL
       }
     }
 
-    public class GLTextureBind : IComparable<GLTextureBind>
+    internal class GLTextureBind : IComparable<GLTextureBind>
     {
       #region Fields / Properties
 
@@ -102,7 +108,7 @@ namespace ToyGame.Rendering.OpenGL
       }
     }
 
-    public class UniformBind : IComparable<UniformBind>
+    internal class UniformBind : IComparable<UniformBind>
     {
       #region Fields / Properties
 
@@ -252,16 +258,19 @@ namespace ToyGame.Rendering.OpenGL
             {
               GL.ActiveTexture(binding.TextureUnit);
               GL.BindTexture(binding.TextureTarget, 0);
+              DebugUtils.GLErrorCheck();
             }
           }
           foreach (var binding in TextureBinds)
           {
             binding.Texture.Bind(binding.TextureUnit);
+            DebugUtils.GLErrorCheck();
           }
         };
       }
       else
       {
+        // ReSharper disable once LoopCanBeConvertedToQuery
         for (var i = 0; i < TextureBinds.Length; i++)
         {
           if (TextureBinds[i].CompareTo(fromCall.TextureBinds[i]) == 0) continue;
@@ -272,10 +281,12 @@ namespace ToyGame.Rendering.OpenGL
             {
               GL.ActiveTexture(binding.TextureUnit);
               GL.BindTexture(binding.TextureTarget, 0);
+              DebugUtils.GLErrorCheck();
             }
             foreach (var binding in TextureBinds)
             {
               binding.Texture.Bind(binding.TextureUnit);
+              DebugUtils.GLErrorCheck();
             }
           };
           break;
@@ -295,11 +306,13 @@ namespace ToyGame.Rendering.OpenGL
           foreach (var uniformBind in UniformBinds)
           {
             uniformBind.UniformBindAction();
+            DebugUtils.GLErrorCheck();
           }
         };
       }
       else
       {
+        // ReSharper disable once LoopCanBeConvertedToQuery
         for (var i = 0; i < UniformBinds.Length; i++)
         {
           if (UniformBinds[i].CompareTo(fromCall.UniformBinds[i]) == 0) continue;
@@ -308,6 +321,7 @@ namespace ToyGame.Rendering.OpenGL
             foreach (var uniformBind in UniformBinds)
             {
               uniformBind.UniformBindAction();
+              DebugUtils.GLErrorCheck();
             }
           };
           break;
@@ -316,10 +330,15 @@ namespace ToyGame.Rendering.OpenGL
       BindAction = () =>
       {
         programSwapAction?.Invoke();
+        DebugUtils.GLErrorCheck();
         stateSwapAction?.Invoke();
+        DebugUtils.GLErrorCheck();
         textureBindAction?.Invoke();
+        DebugUtils.GLErrorCheck();
         voaBindAction?.Invoke();
+        DebugUtils.GLErrorCheck();
         uniformBindAction?.Invoke();
+        DebugUtils.GLErrorCheck();
       };
     }
   }

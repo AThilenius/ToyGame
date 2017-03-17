@@ -1,14 +1,16 @@
 ﻿using OpenTK;
 using OpenTK.Graphics;
+using OpenTK.Platform;
 using ProtoBuf.Meta;
+using ToyGame.Rendering;
 using ToyGame.Resources;
 using ToyGame.Serialization.Surrogates;
 
 namespace ToyGame
 {
-  public class ToyEngineContext
+  public class ToyEngine
   {
-    public ToyEngineContext()
+    public ToyEngine(IWindowInfo windowInfo)
     {
       // Register ProtoBuf.Net Surrogates
       var model = RuntimeTypeModel.Default;
@@ -20,6 +22,8 @@ namespace ToyGame
       model.Add(typeof (Color4), false).SetSurrogate(typeof (Color4Surrogate));
       model.Add(typeof (ResourceSurrogate), true);
       model.Add(typeof (Resource), false).SetSurrogate(typeof (ResourceSurrogate));
+      // Bring the RenderContext up with the given OpenTK IGraphicsContext
+      RenderContext.Initialize(windowInfo);
     }
   }
 }

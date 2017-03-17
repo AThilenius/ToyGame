@@ -34,7 +34,6 @@ namespace ToyGame.Resources
 
     #region Fields / Properties
 
-    public readonly RenderContext RenderContext;
     [ProtoMember(1)] public Guid Guid = Guid.NewGuid();
     [ProtoMember(2)] public BundleSourceType SourceType;
     [ProtoMember(3)] public string ProjectPath;
@@ -45,10 +44,9 @@ namespace ToyGame.Resources
 
     #endregion
 
-    internal ResourceBundle(RenderContext renderContext, string projectPath,
+    internal ResourceBundle(string projectPath,
       BundleSourceType sourceType = BundleSourceType.ProjectPath)
     {
-      RenderContext = renderContext;
       ProjectPath = projectPath;
       SourceType = sourceType;
     }
@@ -80,7 +78,7 @@ namespace ToyGame.Resources
           throw new ResourceImportException("Failed to save to: " + toPath);
         }
       }
-      resource.GLResource?.GpuAllocate();
+      resource.GLResource?.GpuAllocateDeferred();
       _allReferances.TryAdd(resource.Guid, resource);
       return resource;
     }

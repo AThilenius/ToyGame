@@ -2,7 +2,7 @@
 
 namespace ToyGame.Gameplay
 {
-  public class XTransform
+  public class Transform
   {
     #region Fields / Properties
 
@@ -13,7 +13,7 @@ namespace ToyGame.Gameplay
 
     #endregion
 
-    public XTransform(AActor parent)
+    public Transform(AActor parent)
     {
       Actor = parent;
     }

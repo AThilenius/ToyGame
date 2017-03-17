@@ -1,65 +1,86 @@
 using System;
+using System.Diagnostics;
+using System.Drawing;
 using OpenTK;
 using OpenTK.Graphics;
-using OpenTK.Graphics.OpenGL;
+using ToyGame.Gameplay;
+using ToyGame.Materials;
+using ToyGame.Rendering;
+using ToyGame.Resources;
 
 namespace ToyGame.Sample
 {
-  internal sealed class GameWindow : OpenTK.GameWindow
+  internal sealed class GameWindow
   {
-    private ToyEngineContext _context;
+    #region Fields / Properties
+
+    private readonly Stopwatch _stopWatch = Stopwatch.StartNew();
+    private readonly NativeWindow _window;
+    private ToyEngine _context;
+    private World _world;
+    private ACamera _camera;
+    private AStaticMesh _staticMesh;
+    private ResourceBundle _resourceBundle;
+    private RenderViewport _renderViewport;
+
+    #endregion
 
     public GameWindow()
-      // set window resolution, title, and default behaviour
-      : base(1680, 1050, new GraphicsMode(32, 24, 0, 8), "OpenTK Intro",
-        GameWindowFlags.Default, DisplayDevice.Default, 4, 2, GraphicsContextFlags.ForwardCompatible)
     {
+      _window = new NativeWindow(1680, 1050, "Toy Engine", GameWindowFlags.Default, GraphicsMode.Default,
+        DisplayDevice.Default) {Visible = true};
     }
 
-    protected override void OnResize(EventArgs e)
+    public void Run()
     {
-      //GL.Viewport(0, 0, Width, Height);
+      Load();
+      while (true)
+      {
+        _window.ProcessEvents();
+        Render();
+      }
     }
 
-    protected override void OnLoad(EventArgs e)
+    private void Load()
     {
-      _context = new ToyEngineContext();
-      //var camera = new ACamera {AspectRatio = (Width/(float) Height)};
+      _context = new ToyEngine(_window.WindowInfo);
+      _world = new World();
+      _renderViewport = new RenderViewport(_world, _window.WindowInfo);
+      _camera = new ACamera
+      {
+        AspectRatio = (1680/(float) 1050),
+        Viewport = new Rectangle(0, 0, 1680, 1050)
+      };
+      var material = new VoxelMaterial();
+      _resourceBundle = ResourceBundleManager.Instance.AddBundleFromProjectPath(@"C:\Users\Alec\thilenius\ToyGame");
+      var model =
+        _resourceBundle.ImportResource(@"Assets\Models\build_blacksmith_01.fbx", @"ImportCache") as ModelResource;
+      material.DiffuseTexture =
+        _resourceBundle.ImportResource(@"Assets\Textures\build_building_01_a.tif", "ImportCache") as TextureResource;
+      material.MetallicRoughnessTexture =
+        _resourceBundle.ImportResource(@"Assets\Textures\build_building_01_sg.tif", "ImportCache") as TextureResource;
+      _staticMesh = new AStaticMesh(model, material)
+      {
+        Transform =
+        {
+          Scale = new Vector3(0.1f),
+          Position = new Vector3(0, -5, -200),
+          Rotation = Quaternion.FromEulerAngles(0, 0, (float) -Math.PI/2.0f)
+        }
+      };
 
-      //VoxelMaterial material = new VoxelMaterial();
-      //ModelResource model = ResourceManager.FromPath<ModelResource>(@"C:\Users\Alec\Desktop\tank2\tank.obj");
-      //material.DiffuseTexture = ResourceManager.FromPath<TextureResource>(@"C:\Users\Alec\Desktop\tank2\diffuse.png");
-      //material.MetallicRoughnessTexture = ResourceManager.FromPath<TextureResource>(@"C:\Users\Alec\Desktop\tank2\metalic_roughness.png");
-      //staticMesh = new AStaticMesh(model, material);
-      //staticMesh.XTransform.Scale = new Vector3(0.5f);
-      //staticMesh.XTransform.Position = new Vector3(0, -5, -20);
-
-      //TextureResource texture = ResourceManager.FromPath<TextureResource>(@"C:\Users\Alec\thilenius\ToyGame\Assets\Models\AKM\textures\WPNT_AKM_BaseColor.tga");
-
-      //var XLevel = new XLevel();
-      //_world.AddLevel(XLevel);
-      ////XLevel.AddActor(staticMesh);
-      //XLevel.AddActor(camera);
-      //var error = GL.GetError();
-      //if (error != ErrorCode.NoError)
-      //  Console.WriteLine("GLError: " + error);
+      var level = new Level();
+      _world.AddLevel(level);
+      level.AddActor(_staticMesh);
+      level.AddActor(_camera);
+      // Release the context to the rendering thread
     }
 
-    protected override void OnUpdateFrame(FrameEventArgs e)
+    private void Render()
     {
-      //_totalTime += (float) e.Time;
-      //staticMesh.XTransform.Rotation = Quaternion.FromEulerAngles(0, totalTime / 2.0f, (float) -Math.PI / 2.0f);
-    }
-
-    protected override void OnRenderFrame(FrameEventArgs e)
-    {
-      //GL.ClearColor(Color4.Purple);
-      //GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-      //_world.Render();
-      //var error = GL.GetError();
-      //if (error != ErrorCode.NoError)
-      //  Console.WriteLine("Error post new Renderer(): " + error);
-      //SwapBuffers();
+      //_staticMesh.Transform.Rotation = Quaternion.FromEulerAngles(0, _totalTime / 2.0f, (float) -Math.PI / 2.0f);
+      _renderViewport.Render(_camera);
+      RenderContext.Active.Synchronize();
     }
   }
 }

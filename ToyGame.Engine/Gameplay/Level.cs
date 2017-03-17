@@ -2,22 +2,23 @@
 using System.Collections.Generic;
 using ProtoBuf;
 using ToyGame.Rendering;
+using ToyGame.Rendering.OpenGL;
 
 namespace ToyGame.Gameplay
 {
   /// <summary>
-  ///   This is the top level class for editing in the editor. The XWorld is dynamicly
+  ///   This is the top level class for editing in the editor. The World is dynamicly
   ///   created just to host levels and in a game only one of them actually exists.
   /// </summary>
   [ProtoContract]
-  public class XLevel
+  public class Level
   {
     #region Fields / Properties
 
     public const string XLevelFileExtension = ".xlevel";
 
     public IReadOnlyCollection<AActor> Actors => _actors.AsReadOnly();
-    public XWorld World { get; internal set; }
+    public World World { get; internal set; }
     private readonly List<AActor> _actors = new List<AActor>();
     [ProtoMember(1)] public Guid Guid = Guid.NewGuid();
 
@@ -49,29 +50,27 @@ namespace ToyGame.Gameplay
       var instances = new List<T>();
       foreach (var actor in _actors)
       {
-        if (typeof (T).IsAssignableFrom(actor.GetType()))
+        var item = actor as T;
+        if (item != null)
         {
-          instances.Add((T) actor);
+          instances.Add(item);
         }
         instances.AddRange(actor.GetInstancesOf<T>());
       }
       return instances;
     }
 
-    public void EnqueueDrawCalls(RenderContext renderContext, ACamera camera)
+    internal void EnqueueDrawCalls(GLDrawCallBatch drawCallBatch, AActor specificActor = null)
     {
-      foreach (var actor in _actors)
+      if (specificActor == null)
       {
-        EnqueueDrawCalls(renderContext, actor, camera);
+        _actors.ForEach(a => EnqueueDrawCalls(drawCallBatch, a));
+        return;
       }
-    }
-
-    public void EnqueueDrawCalls(RenderContext renderContext, AActor actor, ACamera camera)
-    {
-      (actor as IRenderable)?.EnqueueDrawCalls(renderContext, camera);
-      foreach (var child in actor.Children)
+      (specificActor as IRenderable)?.EnqueueDrawCalls(drawCallBatch);
+      foreach (var child in specificActor.Children)
       {
-        EnqueueDrawCalls(renderContext, child, camera);
+        EnqueueDrawCalls(drawCallBatch, child);
       }
     }
   }

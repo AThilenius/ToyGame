@@ -14,8 +14,8 @@ namespace ToyGame.Rendering.OpenGL
 
     #endregion
 
-    public GLVertexArrayObject(RenderContext renderContext, GLMesh mesh, GLShaderProgram shaderProgram)
-      : base(renderContext, GL.GenVertexArray, GL.DeleteVertexArray)
+    public GLVertexArrayObject(GLMesh mesh, GLShaderProgram shaderProgram)
+      : base(GL.GenVertexArray, GL.DeleteVertexArray)
     {
       Mesh = mesh;
       ShaderProgram = shaderProgram;

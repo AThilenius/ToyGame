@@ -12,8 +12,8 @@ namespace ToyGame.Rendering.Shaders
 
     #endregion
 
-    public GLShaderStage(RenderContext renderContext, ShaderType type, string code)
-      : base(renderContext, () => GL.CreateShader(type), GL.DeleteShader)
+    public GLShaderStage(ShaderType type, string code)
+      : base(() => GL.CreateShader(type), GL.DeleteShader)
     {
       _code = code;
     }

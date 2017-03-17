@@ -11,27 +11,25 @@ namespace ToyGame.Rendering.OpenGL
 
     #endregion
 
-    void GpuAllocate();
-    void GpuFree();
+    void GpuAllocateDeferred();
+    void GpuFreeDeferred();
   }
 
   internal abstract class GLResource<T> : IGLResource, IDisposable, IComparable<T> where T : IGLResource
   {
     #region Fields / Properties
 
-    public readonly RenderContext RenderContext;
     protected Func<int> GLAllocAction;
     protected Action<int> GLFreeAction;
 
     #endregion
 
-    protected GLResource(RenderContext renderContext) : this(renderContext, GL.GenBuffer, GL.DeleteBuffer)
+    protected GLResource() : this(GL.GenBuffer, GL.DeleteBuffer)
     {
     }
 
-    protected GLResource(RenderContext renderContext, Func<int> glAllocAction, Action<int> glFreeAction)
+    protected GLResource(Func<int> glAllocAction, Action<int> glFreeAction)
     {
-      RenderContext = renderContext;
       GLAllocAction = glAllocAction;
       GLFreeAction = glFreeAction;
     }
@@ -49,7 +47,7 @@ namespace ToyGame.Rendering.OpenGL
     /// </summary>
     public void Dispose()
     {
-      GpuFree();
+      GpuFreeDeferred();
     }
 
     /// <summary>
@@ -57,24 +55,28 @@ namespace ToyGame.Rendering.OpenGL
     /// </summary>
     public int GLHandle { get; private set; } = -1;
 
-    public void GpuAllocate()
+    public void GpuAllocateDeferred()
     {
-      RenderContext.AddResourceLoadAction(() =>
-      {
+      RenderContext.Active.AddResourceLoadAction(GpuAllocateImmediate);
+    }
+
+    public void GpuAllocateImmediate()
+    {
         if (GLHandle != -1) return;
         GLHandle = GLAllocAction();
         LoadToGpu();
-      });
     }
 
-    public void GpuFree()
+    public void GpuFreeDeferred()
     {
-      RenderContext.AddResourceLoadAction(() =>
-      {
+      RenderContext.Active.AddResourceLoadAction(GpuFreeImmediate);
+    }
+
+    public void GpuFreeImmediate()
+    {
         if (GLHandle == -1) return;
         GLFreeAction(GLHandle);
         GLHandle = -1;
-      });
     }
 
     /// <summary>

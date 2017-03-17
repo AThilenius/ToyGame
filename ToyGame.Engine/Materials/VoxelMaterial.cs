@@ -37,12 +37,12 @@ namespace ToyGame.Materials
 
     #endregion
 
-    public VoxelMaterial(RenderContext renderContext)
+    public VoxelMaterial()
     {
       if (_glVoxelShader == null)
       {
-        _glVoxelShader = new GLVoxelShader(renderContext);
-        _glVoxelShader.GpuAllocate();
+        _glVoxelShader = new GLVoxelShader();
+        _glVoxelShader.GpuAllocateDeferred();
       }
       Program = _glVoxelShader;
     }

@@ -17,27 +17,26 @@ namespace ToyGame.Rendering.OpenGL
 
     #endregion
 
-    public GLVertexBufferObject(RenderContext renderContext, BufferTarget bufferTarget,
-      GLVertexAttribute[] vertexAttributes, int bufferCount) : base(renderContext)
+    public GLVertexBufferObject(BufferTarget bufferTarget, GLVertexAttribute[] vertexAttributes, int bufferCount)
     {
       VertexAttributes = vertexAttributes;
       _target = bufferTarget;
       BufferCount = bufferCount;
     }
 
-    public static GLVertexBufferObject FromData<T>(RenderContext renderContext, T[] data, BufferTarget bufferTarget,
+    public static GLVertexBufferObject FromData<T>(T[] data, BufferTarget bufferTarget,
       BufferUsageHint bufferUsageHint, params GLVertexAttribute[] vertexAttributes) where T : struct
     {
-      var vertexBufferObject = new GLVertexBufferObject(renderContext, bufferTarget, vertexAttributes, data.Length);
+      var vertexBufferObject = new GLVertexBufferObject(bufferTarget, vertexAttributes, data.Length);
       vertexBufferObject.SetData(data, bufferUsageHint);
-      vertexBufferObject.GpuAllocate();
+      vertexBufferObject.GpuAllocateDeferred();
       return vertexBufferObject;
     }
 
     /// <summary>
-    /// Sets the data for this VBO. This will take effect once the resource is first
-    /// loaded into GPU memory, or (if it's already loaded) upon the next RenderContext
-    /// resource cycle.
+    ///   Sets the data for this VBO. This will take effect once the resource is first
+    ///   loaded into GPU memory, or (if it's already loaded) upon the next RenderContext
+    ///   resource cycle.
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <param name="data"></param>
@@ -52,7 +51,7 @@ namespace ToyGame.Rendering.OpenGL
       };
       if (GLHandle != -1)
       {
-        RenderContext.AddResourceLoadAction(_bufferAction);
+        RenderContext.Active.AddResourceLoadAction(_bufferAction);
       }
     }
 

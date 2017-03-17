@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Drawing;
 using System.Threading;
 using FreeImageAPI;
 using OpenTK.Graphics.OpenGL;
@@ -18,8 +17,8 @@ namespace ToyGame.Rendering.OpenGL
 
     #endregion
 
-    public GLTexture(RenderContext renderContext, GLTextureParams textureParams, FIBITMAP bitmap)
-      : base(renderContext, GL.GenTexture, GL.DeleteTexture)
+    public GLTexture(GLTextureParams textureParams, FIBITMAP bitmap)
+      : base(GL.GenTexture, GL.DeleteTexture)
     {
       Width = FreeImage.GetWidth(bitmap);
       Height = FreeImage.GetHeight(bitmap);
@@ -50,10 +49,10 @@ namespace ToyGame.Rendering.OpenGL
           (TextureParameterName) ExtTextureFilterAnisotropic.TextureMaxAnisotropyExt,
           maxAniso);
       }
-      GL.TexParameter(TextureParams.Target, TextureParameterName.TextureMagFilter, (int)TextureParams.MagFilter);
-      GL.TexParameter(TextureParams.Target, TextureParameterName.TextureMinFilter, (int)TextureParams.MinFilter);
-      GL.TexParameter(TextureParams.Target, TextureParameterName.TextureWrapS, (int)TextureParams.WrapS);
-      GL.TexParameter(TextureParams.Target, TextureParameterName.TextureWrapT, (int)TextureParams.WrapT);
+      GL.TexParameter(TextureParams.Target, TextureParameterName.TextureMagFilter, (int) TextureParams.MagFilter);
+      GL.TexParameter(TextureParams.Target, TextureParameterName.TextureMinFilter, (int) TextureParams.MinFilter);
+      GL.TexParameter(TextureParams.Target, TextureParameterName.TextureWrapS, (int) TextureParams.WrapS);
+      GL.TexParameter(TextureParams.Target, TextureParameterName.TextureWrapT, (int) TextureParams.WrapT);
       GL.TexImage2D(TextureParams.Target, 0, PixelInternalFormat.Rgba, (int) Width, (int) Height, 0,
         PixelFormat.Bgra, PixelType.UnsignedByte, _data);
       FreeImage.FreeHbitmap(_data);

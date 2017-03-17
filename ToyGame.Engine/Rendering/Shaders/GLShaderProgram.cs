@@ -19,8 +19,8 @@ namespace ToyGame.Rendering.Shaders
 
     #endregion
 
-    protected GLShaderProgram(RenderContext renderContext, GLShaderStage[] shaders, string[] attributes,
-      string[] uniforms) : base(renderContext, GL.CreateProgram, GL.DeleteProgram)
+    protected GLShaderProgram(GLShaderStage[] shaders, string[] attributes,
+      string[] uniforms) : base(GL.CreateProgram, GL.DeleteProgram)
     {
       _shaders = shaders;
       _attributes = attributes;
@@ -57,7 +57,7 @@ namespace ToyGame.Rendering.Shaders
       foreach (var shader in _shaders)
       {
         // Make sure the shader is compiled before continuing
-        shader.GpuAllocate();
+        shader.GpuAllocateImmediate();
         GL.AttachShader(GLHandle, shader.GLHandle);
       }
       GL.LinkProgram(GLHandle);
