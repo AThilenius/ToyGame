@@ -1,5 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\SharpFont.4.0.1\build\SharpFont.props" Condition="Exists('..\packages\SharpFont.4.0.1\build\SharpFont.props')" />
+  <Import Project="..\packages\SharpFont.Dependencies.2.6\build\SharpFont.Dependencies.props" Condition="Exists('..\packages\SharpFont.Dependencies.2.6\build\SharpFont.Dependencies.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -46,6 +48,10 @@
       <HintPath>..\packages\AssimpNet.3.3.2\lib\net45\AssimpNet.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="BulletSharp, Version=0.9.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\BulletSharp.0.9\lib\net40-client\BulletSharp.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="FastMember, Version=1.0.0.9, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\FastMember.1.1.0\lib\net40\FastMember.dll</HintPath>
       <Private>True</Private>
@@ -56,6 +62,10 @@
     </Reference>
     <Reference Include="protobuf-net, Version=2.1.0.0, Culture=neutral, PublicKeyToken=257b51d87d2e4d67, processorArchitecture=MSIL">
       <HintPath>..\packages\protobuf-net.2.1.0\lib\net451\protobuf-net.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="SharpFont, Version=4.0.1.200, Culture=neutral, PublicKeyToken=48add4c483071cdf, processorArchitecture=MSIL">
+      <HintPath>..\packages\SharpFont.4.0.1\lib\net45\SharpFont.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -71,6 +81,10 @@
   <ItemGroup>
     <Compile Include="Gameplay\AActor.cs" />
     <Compile Include="Gameplay\ACamera.cs" />
+    <Compile Include="Gameplay\ATextPlane.cs" />
+    <Compile Include="Gameplay\Input.cs" />
+    <Compile Include="Gameplay\Time.cs" />
+    <Compile Include="Materials\TextMaterial.cs" />
     <Compile Include="Rendering\IRenderable.cs" />
     <Compile Include="Gameplay\Level.cs" />
     <Compile Include="Gameplay\World.cs" />
@@ -104,7 +118,9 @@
     <Compile Include="Rendering\Shaders\GLShaderProgram.cs" />
     <Compile Include="Rendering\Shaders\GLShaderStage.cs" />
     <Compile Include="Rendering\Shaders\GLStandardShader.cs" />
+    <Compile Include="Rendering\Shaders\GLTextShader.cs" />
     <Compile Include="Rendering\Shaders\GLVoxelShader.cs" />
+    <Compile Include="Rendering\TrueTypeFace.cs" />
     <Compile Include="Resources\DataBlocks\ModelDataBlock.cs" />
     <Compile Include="Resources\DataBlocks\ResourceDataBlock.cs" />
     <Compile Include="Resources\DataBlocks\TextureDataBlock.cs" />
@@ -120,11 +136,13 @@
     <Compile Include="Serialization\Surrogates\Vector2Surrogate.cs" />
     <Compile Include="Serialization\Surrogates\Vector3Surrogate.cs" />
     <Compile Include="ToyEngine.cs" />
+    <Compile Include="Utilities\BoxPacker.cs" />
     <Compile Include="Utilities\DebugUtils.cs" />
     <Compile Include="Utilities\EventStream.cs" />
     <Compile Include="Utilities\Extensions.cs" />
     <Compile Include="Utilities\MarshalableThread.cs" />
     <Compile Include="Utilities\Reflection.cs" />
+    <Compile Include="Window.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -138,6 +156,7 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="GUI\" />
     <Folder Include="Threading\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
@@ -148,8 +167,12 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\AssimpNet.3.3.2\build\AssimpNet.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\AssimpNet.3.3.2\build\AssimpNet.targets'))" />
     <Error Condition="!Exists('..\packages\VVVV.FreeImage.3.15.1.1\build\net40\VVVV.FreeImage.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\VVVV.FreeImage.3.15.1.1\build\net40\VVVV.FreeImage.targets'))" />
+    <Error Condition="!Exists('..\packages\SharpFont.Dependencies.2.6\build\SharpFont.Dependencies.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\SharpFont.Dependencies.2.6\build\SharpFont.Dependencies.props'))" />
+    <Error Condition="!Exists('..\packages\SharpFont.4.0.1\build\SharpFont.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\SharpFont.4.0.1\build\SharpFont.props'))" />
+    <Error Condition="!Exists('..\packages\BulletSharp.0.9\build\net40-client\BulletSharp.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\BulletSharp.0.9\build\net40-client\BulletSharp.targets'))" />
   </Target>
   <Import Project="..\packages\VVVV.FreeImage.3.15.1.1\build\net40\VVVV.FreeImage.targets" Condition="Exists('..\packages\VVVV.FreeImage.3.15.1.1\build\net40\VVVV.FreeImage.targets')" />
+  <Import Project="..\packages\BulletSharp.0.9\build\net40-client\BulletSharp.targets" Condition="Exists('..\packages\BulletSharp.0.9\build\net40-client\BulletSharp.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

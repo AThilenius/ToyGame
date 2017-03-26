@@ -16,13 +16,11 @@ namespace ToyGame.Gameplay
     #region Fields / Properties
 
     public const string XLevelFileExtension = ".xlevel";
-
     public IReadOnlyCollection<AActor> Actors => _actors.AsReadOnly();
+    [ProtoMember(1)] public Guid Guid = Guid.NewGuid();
+    [ProtoMember(2)] public string Name = "Unnamed";
     public World World { get; internal set; }
     private readonly List<AActor> _actors = new List<AActor>();
-    [ProtoMember(1)] public Guid Guid = Guid.NewGuid();
-
-    [ProtoMember(2)] public string Name = "Unnamed";
 
     [ProtoMember(3)]
     private AActor[] ChildActors
@@ -72,6 +70,18 @@ namespace ToyGame.Gameplay
       {
         EnqueueDrawCalls(drawCallBatch, child);
       }
+    }
+
+    internal void Update()
+    {
+      foreach (var actor in _actors) TickActor(actor);
+    }
+
+    private static void TickActor(AActor actor)
+    {
+      // TODO: This all needs to be reworked, it's too slow
+      actor.Update();
+      foreach (var child in actor.Children) TickActor(child);
     }
   }
 }

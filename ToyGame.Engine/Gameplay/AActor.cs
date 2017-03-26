@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace ToyGame.Gameplay
 {
@@ -65,6 +66,10 @@ namespace ToyGame.Gameplay
       {
         _parent._children.Add(this);
       }
+    }
+
+    public virtual void Update()
+    {
     }
   }
 }

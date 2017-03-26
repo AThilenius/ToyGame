@@ -20,12 +20,26 @@ namespace ToyGame.Rendering.OpenGL
     public void Bind()
     {
       // Not much to do here, just make the current window current
-      RenderContext.Active.GLGraphicsContext.MakeCurrent(_windowInfo);
+      try
+      {
+        RenderContext.Active.GLGraphicsContext.MakeCurrent(_windowInfo);
+      }
+      catch (GraphicsContextException ex)
+      {
+        // Ignore it for now, the window is probably closing.
+      }
     }
 
     public void FinalizeRender()
     {
-      RenderContext.Active.GLGraphicsContext.SwapBuffers();
+      try
+      {
+        RenderContext.Active.GLGraphicsContext.SwapBuffers();
+      }
+      catch (GraphicsContextException ex)
+      {
+        // Ignore it for now, the window is probably closing.
+      }
     }
   }
 }

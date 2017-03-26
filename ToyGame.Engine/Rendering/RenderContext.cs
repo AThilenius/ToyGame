@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Diagnostics;
 using System.Threading;
 using OpenTK.Graphics;
-using OpenTK.Graphics.OpenGL;
 using OpenTK.Platform;
 using ToyGame.Gameplay;
 using ToyGame.Utilities;
@@ -30,9 +28,9 @@ namespace ToyGame.Rendering
     #region Fields / Properties
 
     public const string GpuThreadName = "OpenGL Render Thread";
+    public static RenderContext Active { get; private set; }
     public IWindowInfo MainWindowInfo;
     public GraphicsContext GLGraphicsContext;
-    public static RenderContext Active { get; private set; }
     private readonly Thread _gpuThread;
     private readonly object _swapLock = new object();
     private ConcurrentQueue<Action> _backResourceLoadBuffer = new ConcurrentQueue<Action>();
@@ -85,6 +83,12 @@ namespace ToyGame.Rendering
     internal static void Initialize(IWindowInfo mainWindowInfo)
     {
       Active = new RenderContext(mainWindowInfo);
+    }
+
+    internal void Shutdown()
+    {
+      _shutdown = true;
+      lock (_swapLock) Monitor.Pulse(_swapLock);
     }
 
     internal void AddResourceLoadAction(Action action)

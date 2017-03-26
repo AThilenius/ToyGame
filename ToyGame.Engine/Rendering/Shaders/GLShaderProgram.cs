@@ -72,7 +72,7 @@ namespace ToyGame.Rendering.Shaders
         var location = GL.GetAttribLocation(GLHandle, attrib);
         if (location < 0)
         {
-          throw new Exception("Failed to find the attribute [" + attrib + "] in shader GLSL.");
+          Console.WriteLine(@"Failed to find the attribute [" + attrib + @"] in shader GLSL.");
         }
         AttributeLocations.Add(attrib, location);
       }
@@ -82,7 +82,7 @@ namespace ToyGame.Rendering.Shaders
         var location = GL.GetUniformLocation(GLHandle, uniform);
         if (location < 0)
         {
-          throw new Exception("Failed to find the uniform [" + uniform + "] in shader GLSL.");
+          Console.WriteLine(@"Failed to find the uniform [" + uniform + @"] in shader GLSL.");
         }
         UniformLocations.Add(uniform, location);
       }

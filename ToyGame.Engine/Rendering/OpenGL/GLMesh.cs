@@ -55,7 +55,7 @@ namespace ToyGame.Rendering.OpenGL
         if (colors != null)
         {
           vbos.Add(GLVertexBufferObject.FromData(colors, BufferTarget.ArrayBuffer, usage,
-            new GLVertexAttribute("colors", 4, VertexAttribPointerType.Float, false, Marshal.SizeOf(typeof (Color4)), 0)));
+            new GLVertexAttribute("color", 4, VertexAttribPointerType.Float, false, Marshal.SizeOf(typeof (Color4)), 0)));
         }
         VertexBuffers = vbos.ToArray();
       });
