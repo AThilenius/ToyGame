@@ -11,7 +11,7 @@ namespace ToyGame.Rendering.OpenGL
 
     #endregion
 
-    void GpuAllocateDeferred(bool update = false);
+    void GpuAllocateDeferred();
     void GpuFreeDeferred();
   }
 
@@ -21,6 +21,7 @@ namespace ToyGame.Rendering.OpenGL
 
     protected Func<int> GLAllocAction;
     protected Action<int> GLFreeAction;
+    protected bool UpdateNeeded;
 
     #endregion
 
@@ -55,9 +56,9 @@ namespace ToyGame.Rendering.OpenGL
     /// </summary>
     public int GLHandle { get; private set; } = -1;
 
-    public void GpuAllocateDeferred(bool update = false)
+    public void GpuAllocateDeferred()
     {
-      RenderContext.Active.AddResourceLoadAction(() => GpuAllocateImmediate(update));
+      RenderContext.Active.AddResourceLoadAction(GpuAllocateImmediate);
     }
 
     public void GpuFreeDeferred()
@@ -65,11 +66,12 @@ namespace ToyGame.Rendering.OpenGL
       RenderContext.Active.AddResourceLoadAction(GpuFreeImmediate);
     }
 
-    public void GpuAllocateImmediate(bool update = false)
+    public void GpuAllocateImmediate()
     {
-      if (GLHandle != -1 && !update) return;
+      if (GLHandle != -1 && !UpdateNeeded) return;
       if (GLHandle == -1) GLHandle = GLAllocAction();
       LoadToGpu();
+      UpdateNeeded = false;
     }
 
     public void GpuFreeImmediate()

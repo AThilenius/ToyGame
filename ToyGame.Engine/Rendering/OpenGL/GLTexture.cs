@@ -31,13 +31,13 @@ namespace ToyGame.Rendering.OpenGL
       _data = FreeImage.GetBits(bitmap);
     }
 
-    public GLTexture(GLTextureParams textureParams, Bitmap bitmap)
+    public GLTexture(GLTextureParams textureParams, Image bitmap)
       : base(GL.GenTexture, GL.DeleteTexture)
     {
       Width = (uint) bitmap.Width;
       Height = (uint) bitmap.Height;
       TextureParams = textureParams;
-      _bitmap = bitmap;
+      _bitmap = new Bitmap(bitmap);
     }
 
     /// <summary>
@@ -52,11 +52,12 @@ namespace ToyGame.Rendering.OpenGL
       GL.BindTexture(TextureTarget.Texture2D, GLHandle);
     }
 
-    public void Update(Bitmap bitmap)
+    public void Update(Image bitmap)
     {
+      UpdateNeeded = true;
       Width = (uint) bitmap.Width;
       Height = (uint) bitmap.Height;
-      _bitmap = bitmap;
+      _bitmap = new Bitmap(bitmap);
     }
 
     protected override void LoadToGpu()
@@ -89,6 +90,8 @@ namespace ToyGame.Rendering.OpenGL
         GL.TexImage2D(TextureParams.Target, 0, PixelInternalFormat.Rgba, (int) Width, (int) Height, 0,
           PixelFormat.Bgra, PixelType.UnsignedByte, data.Scan0);
         _bitmap.UnlockBits(data);
+        _bitmap.Dispose();
+        _bitmap = null;
       }
       else Console.WriteLine(@"Trying to load a null GLTexture");
       if (TextureParams.GenerateMipMaps) GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);

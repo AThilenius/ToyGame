@@ -1,30 +1,16 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using OpenTK.Graphics;
 using OpenTK.Platform;
-using ToyGame.Gameplay;
 using ToyGame.Utilities;
 
 namespace ToyGame.Rendering
 {
   public class RenderContext
   {
-    #region Types
-
-    private struct PiplineRun
-    {
-      #region Fields / Properties
-
-      public RenderPipeline Pipeline;
-      public IRenderTarget RenderTarget;
-      public ACamera Camera;
-
-      #endregion
-    }
-
-    #endregion
-
     #region Fields / Properties
 
     public const string GpuThreadName = "OpenGL Render Thread";
@@ -33,11 +19,14 @@ namespace ToyGame.Rendering
     public GraphicsContext GLGraphicsContext;
     private readonly Thread _gpuThread;
     private readonly object _swapLock = new object();
+    private readonly object _backBufferLock = new object();
     private ConcurrentQueue<Action> _backResourceLoadBuffer = new ConcurrentQueue<Action>();
-    private ConcurrentQueue<PiplineRun> _backPipelineRunsBuffer = new ConcurrentQueue<PiplineRun>();
     private Action[] _frontResourceLoadBuffer;
-    private PiplineRun[] _frontPipelineRunsBuffer;
+    private KeyValuePair<IRenderTarget, RenderPipeline[]>[] _frontPipelineRunsBuffer;
     private bool _shutdown;
+
+    private Dictionary<IRenderTarget, List<RenderPipeline>> _backPipelineRunsBuffer =
+      new Dictionary<IRenderTarget, List<RenderPipeline>>();
 
     #endregion
 
@@ -55,7 +44,7 @@ namespace ToyGame.Rendering
     public void ShutDown()
     {
       _shutdown = true;
-      _frontPipelineRunsBuffer = new PiplineRun[0];
+      _frontPipelineRunsBuffer = new KeyValuePair<IRenderTarget, RenderPipeline[]>[0];
       Synchronize();
     }
 
@@ -64,18 +53,21 @@ namespace ToyGame.Rendering
       var newFrontResourcesBuffer = new Action[_backResourceLoadBuffer.Count];
       _backResourceLoadBuffer.CopyTo(newFrontResourcesBuffer, 0);
       _backResourceLoadBuffer = new ConcurrentQueue<Action>();
-      var newFrontDrawCallBatchBuffer = new PiplineRun[_backPipelineRunsBuffer.Count];
-      _backPipelineRunsBuffer.CopyTo(newFrontDrawCallBatchBuffer, 0);
-      _backPipelineRunsBuffer = new ConcurrentQueue<PiplineRun>();
+      KeyValuePair<IRenderTarget, RenderPipeline[]>[] newFrontDrawCallBatchBuffer;
+      lock (_backBufferLock)
+      {
+        newFrontDrawCallBatchBuffer =
+          _backPipelineRunsBuffer.ToArray()
+            .Select(kvp => new KeyValuePair<IRenderTarget, RenderPipeline[]>(kvp.Key, kvp.Value.ToArray()))
+            .ToArray();
+        _backPipelineRunsBuffer = new Dictionary<IRenderTarget, List<RenderPipeline>>();
+      }
       lock (_swapLock)
       {
         _frontResourceLoadBuffer = newFrontResourcesBuffer;
         _frontPipelineRunsBuffer = newFrontDrawCallBatchBuffer;
         // Swap all buffers in all enqueued GLDrawCallBuffers
-        for (var i = 0; i < _frontPipelineRunsBuffer.Length; i++)
-        {
-          _frontPipelineRunsBuffer[i].Pipeline.SwapDrawCallBuffers();
-        }
+        foreach (var pipeline in _frontPipelineRunsBuffer.SelectMany(kvp => kvp.Value)) pipeline.SwapDrawCallBuffers();
         Monitor.Pulse(_swapLock);
       }
     }
@@ -104,9 +96,14 @@ namespace ToyGame.Rendering
       }
     }
 
-    internal void AddPipelineRun(RenderPipeline pipeline, IRenderTarget renderTarget, ACamera camera)
+    internal void AddPipelineRun(RenderPipeline pipeline, IRenderTarget renderTarget)
     {
-      _backPipelineRunsBuffer.Enqueue(new PiplineRun {Pipeline = pipeline, RenderTarget = renderTarget, Camera = camera});
+      lock (_backBufferLock)
+      {
+        List<RenderPipeline> runs = null;
+        if (_backPipelineRunsBuffer.TryGetValue(renderTarget, out runs)) runs.Add(pipeline);
+        else _backPipelineRunsBuffer.Add(renderTarget, new List<RenderPipeline>(new[] {pipeline}));
+      }
     }
 
     private void DoGpuThreadWork()
@@ -135,7 +132,16 @@ namespace ToyGame.Rendering
             for (var i = 0; i < _frontPipelineRunsBuffer.Length; i++)
             {
               var pipelineRun = _frontPipelineRunsBuffer[i];
-              pipelineRun.Pipeline.RenderImmediate(pipelineRun.Camera, pipelineRun.RenderTarget);
+              // Bind the IRenderTarget
+              pipelineRun.Key.Bind();
+              // Render all piplines
+              // ReSharper disable once ForCanBeConvertedToForeach
+              for (var j = 0; j < pipelineRun.Value.Length; j++)
+              {
+                pipelineRun.Value[j].RenderImmediate();
+              }
+              // Swap the buffers for the IRenderTarget
+              pipelineRun.Key.FinalizeRender();
               DebugUtils.GLErrorCheck();
             }
           }

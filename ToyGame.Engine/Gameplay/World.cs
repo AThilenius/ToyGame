@@ -1,6 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using BulletSharp;
 using OpenTK;
+using ToyGame.GUI;
+using ToyGame.Rendering;
 using ToyGame.Rendering.OpenGL;
 using ToyGame.Utilities;
 
@@ -11,7 +14,7 @@ namespace ToyGame.Gameplay
   ///   Worlds are not serialized, and only one world will exist in a game, but several exist
   ///   in the editor to host different viewports with different contents.
   /// </summary>
-  public class World
+  public class World : IRenderable
   {
     #region Fields / Properties
 
@@ -69,9 +72,9 @@ namespace ToyGame.Gameplay
       _levels.ForEach(level => level.Update());
     }
 
-    internal void EnqueueDrawCalls(GLDrawCallBatch drawCallBatch)
+    public void EnqueueDrawCalls(GLDrawCallBatch drawCallbatch)
     {
-      _levels.ForEach(level => level.EnqueueDrawCalls(drawCallBatch));
+      _levels.ForEach(level => level.EnqueueDrawCalls(drawCallbatch));
     }
   }
 }

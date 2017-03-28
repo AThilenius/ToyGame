@@ -84,6 +84,12 @@
     <Compile Include="Gameplay\ATextPlane.cs" />
     <Compile Include="Gameplay\Input.cs" />
     <Compile Include="Gameplay\Time.cs" />
+    <Compile Include="GUI\GuiElementEvents.cs" />
+    <Compile Include="GUI\GuiElementInput.cs" />
+    <Compile Include="GUI\GuiElementLayout.cs" />
+    <Compile Include="GUI\MainGuiElement.cs" />
+    <Compile Include="GUI\MiscTypes.cs" />
+    <Compile Include="GUI\GuiElementRendering.cs" />
     <Compile Include="Materials\TextMaterial.cs" />
     <Compile Include="Rendering\IRenderable.cs" />
     <Compile Include="Gameplay\Level.cs" />
@@ -118,6 +124,7 @@
     <Compile Include="Rendering\Shaders\GLShaderProgram.cs" />
     <Compile Include="Rendering\Shaders\GLShaderStage.cs" />
     <Compile Include="Rendering\Shaders\GLStandardShader.cs" />
+    <Compile Include="Rendering\Shaders\GLGuiShader.cs" />
     <Compile Include="Rendering\Shaders\GLTextShader.cs" />
     <Compile Include="Rendering\Shaders\GLVoxelShader.cs" />
     <Compile Include="Rendering\TrueTypeFace.cs" />
@@ -156,7 +163,6 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="GUI\" />
     <Folder Include="Threading\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

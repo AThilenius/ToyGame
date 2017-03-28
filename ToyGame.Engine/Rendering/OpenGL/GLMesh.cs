@@ -7,6 +7,7 @@ using OpenTK.Graphics.OpenGL;
 
 namespace ToyGame.Rendering.OpenGL
 {
+  // TODO: This doesn't really fit the normal Resource model, meaning it's a one-off use case and it makes it confusing to use. Work on that.
   /// <summary>
   ///   Represents the set of VBO and IVO buffers needed to render a model (position, normal, uv, index...).
   /// </summary>

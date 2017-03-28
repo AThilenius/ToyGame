@@ -1,5 +1,4 @@
-﻿using System;
-using ToyGame.Gameplay;
+﻿using ToyGame.Gameplay;
 using ToyGame.Utilities;
 
 namespace ToyGame.Rendering.OpenGL
@@ -12,27 +11,24 @@ namespace ToyGame.Rendering.OpenGL
 
     #endregion
 
-    public GLForwardPipeline(World world) : base(world)
+    public GLForwardPipeline(IRenderable renderable, ACamera camera) : base(renderable, camera)
     {
     }
 
-    public override void RenderImmediate(ACamera camera, IRenderTarget target)
+    internal override void RenderImmediate()
     {
-      base.RenderImmediate(camera, target);
-      // A forward renderer is pretty damn simple!
-      target.Bind();
+      base.RenderImmediate();
       // ReSharper disable once ForCanBeConvertedToForeach
       for (var i = 0; i < _drawCallBatch.FrontBuffer.Length; i++)
       {
         _drawCallBatch.FrontBuffer[i].Draw();
         DebugUtils.GLErrorCheck();
       }
-      target.FinalizeRender();
     }
 
     public override void UpdateDrawCallBatches()
     {
-      BoundWorld.EnqueueDrawCalls(_drawCallBatch);
+      Renderable.EnqueueDrawCalls(_drawCallBatch);
       _drawCallBatch.FinalizeFrame();
     }
 

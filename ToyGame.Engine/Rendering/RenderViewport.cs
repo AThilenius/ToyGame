@@ -8,23 +8,24 @@ namespace ToyGame.Rendering
   {
     #region Fields / Properties
 
-    public readonly World World;
-    private readonly GLForwardPipeline _forwardPipeline;
+    public readonly RenderPipeline[] RenderPipelines;
     private readonly GLRenderTargetViewport _renderTarget;
 
     #endregion
 
-    public RenderViewport(World world, IWindowInfo windowInfoHack)
+    public RenderViewport(IWindowInfo windowInfo, params RenderPipeline[] renderPipelines)
     {
-      World = world;
-      _forwardPipeline = new GLForwardPipeline(world);
-      _renderTarget = new GLRenderTargetViewport(windowInfoHack);
+      RenderPipelines = renderPipelines;
+      _renderTarget = new GLRenderTargetViewport(windowInfo);
     }
 
-    public void Render(ACamera camera)
+    public void Render()
     {
-      _forwardPipeline.UpdateDrawCallBatches();
-      RenderContext.Active.AddPipelineRun(_forwardPipeline, _renderTarget, camera);
+      foreach (var pipline in RenderPipelines)
+      {
+        pipline.UpdateDrawCallBatches();
+        RenderContext.Active.AddPipelineRun(pipline, _renderTarget);
+      }
     }
   }
 }

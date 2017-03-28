@@ -200,7 +200,7 @@ namespace ToyGame.Rendering
       else
       {
         AtlasTexture.Update(Atlas);
-        AtlasTexture.GpuAllocateDeferred(true);
+        AtlasTexture.GpuAllocateDeferred();
       }
       // DEBUG
       Atlas.Save(@"C:\Users\Alec\Desktop\test2.bmp");
