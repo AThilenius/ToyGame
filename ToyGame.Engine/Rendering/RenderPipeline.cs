@@ -14,7 +14,7 @@ namespace ToyGame.Rendering
 
     public readonly IRenderable Renderable;
     public ACamera Camera;
-    private readonly GLUniformBuffer _uniformBuffer;
+    private static GLUniformBuffer _uniformBuffer;
 
     #endregion
 
@@ -22,6 +22,7 @@ namespace ToyGame.Rendering
     {
       Renderable = renderable;
       Camera = camera;
+      if (_uniformBuffer != null) return;
       _uniformBuffer = new GLUniformBuffer(Marshal.SizeOf<Matrix4>()*2, 0);
       _uniformBuffer.GpuAllocateDeferred();
     }
@@ -40,12 +41,9 @@ namespace ToyGame.Rendering
       Camera.PreRender();
       DebugUtils.GLErrorCheck();
       GL.Viewport(Camera.Viewport);
-      if (Camera.ClearColor != Color4.Transparent)
-      {
-        GL.ClearColor(Camera.ClearColor);
-        GL.Clear(Camera.ClearBufferMast);
-      }
-      _uniformBuffer.BufferMatrix4(0, new[] {Camera.ProjectionMatrix, Camera.ViewMatrix});
+      GL.ClearColor(Camera.ClearColor);
+      GL.Clear(Camera.ClearBufferMast);
+      _uniformBuffer.BufferMatrix4Immediate(0, new[] {Camera.ProjectionMatrix, Camera.ViewMatrix});
       DebugUtils.GLErrorCheck();
     }
 

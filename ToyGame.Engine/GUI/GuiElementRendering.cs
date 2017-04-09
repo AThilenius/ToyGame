@@ -4,19 +4,22 @@ namespace ToyGame.GUI
 {
   public partial class GuiElement
   {
+    #region Fields / Properties
+
+    public static Color DefaultFontColor = Color.White;
+    public static Font DefaultFont = new Font("Arial", 10);
     public Color BackgroundColor = Color.Transparent;
+
+    #endregion
 
     public virtual void Draw(Graphics graphics)
     {
       if (BackgroundColor != Color.Transparent)
       {
         graphics.SetClip(WorkingArea);
-        graphics.FillRectangle(new SolidBrush(BackgroundColor), WorkingArea);
-        graphics.DrawString(WorkingArea.ToString(), new Font("Arial", 16), new SolidBrush(Color.Black),
-          WorkingArea.X + 10, WorkingArea.Y + (WorkingArea.Height / 2.0f));
+        if (BackgroundColor != Color.Transparent) graphics.FillRectangle(new SolidBrush(BackgroundColor), WorkingArea);
       }
       foreach (var child in Children) child.Draw(graphics);
     }
-
   }
 }

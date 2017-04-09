@@ -47,12 +47,11 @@ namespace ToyGame.Rendering
 
     #region Fields / Properties
 
-    internal static GLTexture AtlasTexture;
+    internal static GLDynamicTexture AtlasTexture;
     private const int AtlasSize = 1024;
     private const int Dpi = 96;
 
 
-    private static readonly Bitmap Atlas = new Bitmap(AtlasSize, AtlasSize);
     private static readonly BoxPacker BoxPacker = new BoxPacker(AtlasSize, AtlasSize);
     private static readonly Dictionary<FaceDefinition, TrueTypeFace> LoadedFonts =
       new Dictionary<FaceDefinition, TrueTypeFace>();
@@ -117,7 +116,7 @@ namespace ToyGame.Rendering
 
     private void LoadCharacterSet(string characters)
     {
-      using (var graphics = Graphics.FromImage(Atlas))
+      using (var graphics = Graphics.FromImage(AtlasTexture.Bitmap))
       {
         graphics.CompositingQuality = CompositingQuality.HighQuality;
         graphics.SmoothingMode = SmoothingMode.HighQuality;
@@ -154,13 +153,13 @@ namespace ToyGame.Rendering
             if (!drawLocation.HasValue) throw new Exception("Failed to pack chacter");
             // Draw using the bottom left as (0, 0) not the top left.
             var flippedDrawLocation = new Point(drawLocation.Value.X,
-              Atlas.Height - drawLocation.Value.Y - cBmp.Height);
+              AtlasSize - drawLocation.Value.Y - cBmp.Height);
             graphics.DrawImageUnscaled(cBmp, flippedDrawLocation);
             // Some quick helper to keep Position and UV stuff a little cleaner.
             var positionLowerLeft = new Vector3(_face.Glyph.BitmapLeft, -(cBmp.Height - _face.Glyph.BitmapTop), 0);
-            var uvLowerLeft = new Vector2(drawLocation.Value.X/(float) Atlas.Width,
-              drawLocation.Value.Y/(float) Atlas.Height);
-            var uvSize = new Vector2(cBmp.Width/(float) Atlas.Width, cBmp.Height/(float) Atlas.Height);
+            var uvLowerLeft = new Vector2(drawLocation.Value.X/(float) AtlasSize,
+              drawLocation.Value.Y/(float) AtlasSize);
+            var uvSize = new Vector2(cBmp.Width/(float) AtlasSize, cBmp.Height/(float) AtlasSize);
             _characterMetrics.Add(character, new CharacterMetric
             {
               IsDrawn = true,
@@ -192,18 +191,9 @@ namespace ToyGame.Rendering
         }
       }
       // Update GPU texture
-      if (AtlasTexture == null)
-      {
-        AtlasTexture = new GLTexture(GLTextureParams.Default, Atlas);
-        AtlasTexture.GpuAllocateDeferred();
-      }
-      else
-      {
-        AtlasTexture.Update(Atlas);
-        AtlasTexture.GpuAllocateDeferred();
-      }
-      // DEBUG
-      Atlas.Save(@"C:\Users\Alec\Desktop\test2.bmp");
+      if (AtlasTexture != null) return;
+      AtlasTexture = new GLDynamicTexture(GLTextureParams.Default, AtlasSize, AtlasSize);
+      AtlasTexture.GpuAllocateDeferred();
     }
   }
 }

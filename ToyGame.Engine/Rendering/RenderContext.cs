@@ -17,6 +17,9 @@ namespace ToyGame.Rendering
     public static RenderContext Active { get; private set; }
     public IWindowInfo MainWindowInfo;
     public GraphicsContext GLGraphicsContext;
+    // TODO: This event shouldn't exist after Dispatcher is finished
+    public event EventHandler OnSyncronize;
+    public event EventHandler OnSyncronizeGpu;
     private readonly Thread _gpuThread;
     private readonly object _swapLock = new object();
     private readonly object _backBufferLock = new object();
@@ -68,6 +71,7 @@ namespace ToyGame.Rendering
         _frontPipelineRunsBuffer = newFrontDrawCallBatchBuffer;
         // Swap all buffers in all enqueued GLDrawCallBuffers
         foreach (var pipeline in _frontPipelineRunsBuffer.SelectMany(kvp => kvp.Value)) pipeline.SwapDrawCallBuffers();
+        OnSyncronize?.Invoke(this, EventArgs.Empty);
         Monitor.Pulse(_swapLock);
       }
     }

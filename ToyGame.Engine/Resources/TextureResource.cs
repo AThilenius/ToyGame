@@ -49,7 +49,7 @@ namespace ToyGame.Resources
       FreeImage.SaveToStream(bitmap32, stream, FREE_IMAGE_FORMAT.FIF_TARGA);
       ((TextureDataBlock) DataBlock).RawData = stream.ToArray();
       // Load the IGLResource
-      GLTexture = new GLTexture(GLTextureParams.Default, bitmap32);
+      GLTexture = new GLStaticTexture(GLTextureParams.Default, bitmap32);
     }
   }
 }

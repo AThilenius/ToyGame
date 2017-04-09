@@ -26,15 +26,12 @@ namespace ToyGame.Rendering.OpenGL
     /// </summary>
     /// <param name="offset"></param>
     /// <param name="data"></param>
-    public void BufferMatrix4(int offset, Matrix4[] data)
+    public void BufferMatrix4Immediate(int offset, Matrix4[] data)
     {
       var size = Marshal.SizeOf<Matrix4>()*data.Length;
-      RenderContext.Active.AddResourceLoadAction(() =>
-      {
-        Debug.Assert(GLHandle != -1);
-        GL.BindBuffer(BufferTarget.UniformBuffer, GLHandle);
-        GL.BufferSubData(BufferTarget.UniformBuffer, (IntPtr) offset, (IntPtr) size, data);
-      });
+      Debug.Assert(GLHandle != -1);
+      GL.BindBuffer(BufferTarget.UniformBuffer, GLHandle);
+      GL.BufferSubData(BufferTarget.UniformBuffer, (IntPtr) offset, (IntPtr) size, data);
     }
 
     protected override void LoadToGpu()

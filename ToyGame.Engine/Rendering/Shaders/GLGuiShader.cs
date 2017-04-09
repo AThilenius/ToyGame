@@ -8,7 +8,7 @@ namespace ToyGame.Rendering.Shaders
     {
       new GLShaderStage(ShaderType.VertexShader, VertexShaderCode),
       new GLShaderStage(ShaderType.FragmentShader, FragmentShaderCode)
-    }, new[] {"position", "uv0"}, new string[0])
+    }, new[] {"position"}, new string[0])
     {
     }
 
@@ -17,13 +17,13 @@ namespace ToyGame.Rendering.Shaders
     private const string VertexShaderCode = @"
         #version 420
         in vec3 position;
-        in vec2 uv0;
 
         out vec2 TexCoords;
 
         void main()
         {
-          TexCoords = uv0;
+          TexCoords = vec2((position.x + 1.0) / 2.0, 1.0 - ((position.y + 1.0) / 2.0));
+          // Transform Screen Space to UV coordinates
           gl_Position =  vec4(position, 1.0);
         }";
 

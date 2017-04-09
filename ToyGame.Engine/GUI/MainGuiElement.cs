@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Drawing;
-using System.Threading;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 using ToyGame.Rendering;
@@ -20,10 +19,9 @@ namespace ToyGame.GUI
     private static GLMesh _glMesh;
     private static GLGuiShader _guiShader;
     private readonly Window _window;
-    private GLTexture _glTexture;
+    private GLDynamicTexture _glTexture;
     private GLVertexArrayObject _vertexArrayObject;
     private GuiElement _lastMouseOver;
-    private Bitmap _bitmap;
 
     #endregion
 
@@ -34,8 +32,7 @@ namespace ToyGame.GUI
       _glMesh = _glMesh ??
                 new GLMesh(
                   new[] {new Vector3(-1, -1, 0), new Vector3(1, -1, 0), new Vector3(1, 1, 0), new Vector3(-1, 1, 0)},
-                  new uint[] {0, 1, 3, 1, 2, 3},
-                  new[] {Vector3.Zero, Vector3.UnitX, new Vector3(1, 1, 0), Vector3.UnitY});
+                  new uint[] {0, 1, 3, 1, 2, 3});
       // Setup static shader if needed. Normally this would be managed by a material, but this is a one-off exception
       if (_guiShader == null)
       {
@@ -46,16 +43,14 @@ namespace ToyGame.GUI
       Width = new SFixed(window.NativeWindow.Width);
       Height = new SFixed(window.NativeWindow.Height);
       ChildAlignment = ChildAlignments.Row;
-      // Create the default bitmap
-      _bitmap = new Bitmap(_window.NativeWindow.Width, _window.NativeWindow.Height);
+      // GL Deynamic Texture
+      // Re-upload texutre to GPU
+      _glTexture = new GLDynamicTexture(GLTextureParams.Default, _window.UnscaledSize.Width, _window.UnscaledSize.Height);
+      _glTexture.GpuAllocateDeferred();
       // Register NativeWindow events
       window.NativeWindow.KeyDown += (sender, args) => FocusedElement?.OnKeyDown(args);
       window.NativeWindow.KeyUp += (sender, args) => FocusedElement?.OnKeyUp(args);
-      window.NativeWindow.Resize += (sender, args) =>
-      {
-        _bitmap.Dispose();
-        _bitmap = new Bitmap(_window.NativeWindow.Width, _window.NativeWindow.Height);
-      };
+      window.NativeWindow.Resize += (sender, args) => _glTexture.Resize(_window.UnscaledSize.Width, _window.UnscaledSize.Height);
       window.NativeWindow.MouseDown += (sender, args) =>
       {
         var clickedElement = GetTopmostElementAtPoint(args.Position);
@@ -100,22 +95,12 @@ namespace ToyGame.GUI
 
     public void EnqueueDrawCalls(GLDrawCallBatch drawCallbatch)
     {
-      // TODO: GLTexture updating needs to be made double-buffered rather than creating a copy of the entire image every time.
-      using (var graphics = Graphics.FromImage(_bitmap))
+      using (var graphics = Graphics.FromImage(_glTexture.Bitmap))
       {
-        graphics.Clear(Color.FromArgb(255, 45, 45, 48));
+        graphics.Clear(Color.Transparent);
+        graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAliasGridFit;
         Draw(graphics);
       }
-      // Re-upload texutre to GPU
-      if (_glTexture == null)
-      {
-        _glTexture = _glTexture ?? new GLTexture(GLTextureParams.Default, _bitmap);
-      }
-      else
-      {
-        _glTexture.Update(_bitmap);
-      }
-      _glTexture.GpuAllocateDeferred();
       if (_vertexArrayObject == null)
       {
         _vertexArrayObject = new GLVertexArrayObject(_glMesh, _guiShader);

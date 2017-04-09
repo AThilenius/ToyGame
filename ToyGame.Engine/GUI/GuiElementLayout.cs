@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Collections.Specialized;
 using System.Drawing;
 using System.Linq;
 
@@ -23,42 +21,8 @@ namespace ToyGame.GUI
     public BorderSize Margin = new BorderSize(0);
     public BorderSize Padding = new BorderSize(2);
     public BorderStyle Border = new BorderStyle(0, Color.Transparent);
-
-    public GuiElement Parent
-    {
-      get { return _parent; }
-      set
-      {
-        _parent?._children.Remove(this);
-        _parent = value;
-        value?._children.Add(this);
-      }
-    }
-
-    public ObservableCollection<GuiElement> Children
-    {
-      get
-      {
-        var observable = new ObservableCollection<GuiElement>(_children);
-        observable.CollectionChanged += (sender, args) =>
-        {
-          if (args.Action != NotifyCollectionChangedAction.Add) return;
-          foreach (var control in args.NewItems) ((GuiElement) control)._parent = this;
-        };
-        return observable;
-      }
-      set
-      {
-        // Allows for the setting all all children, at the same time
-        _children.ForEach(child => child.Parent = null);
-        _children = value.ToList();
-        _children.ForEach(child => child._parent = this);
-      }
-    }
-
+    public List<GuiElement> Children = new List<GuiElement>();
     public Rectangle WorkingArea { get; private set; }
-    private List<GuiElement> _children = new List<GuiElement>();
-    private GuiElement _parent;
 
     #endregion
 
@@ -122,7 +86,7 @@ namespace ToyGame.GUI
       if (point.X < WorkingArea.Left || point.Y < WorkingArea.Top || point.X > WorkingArea.Left + WorkingArea.Width ||
           point.Y > WorkingArea.Top + WorkingArea.Height) return null;
       // Return child that is top-most, or this if they are all out of bounds
-      return Children.Select(c => c.GetTopmostElementAtPoint(point)).First(c => c != null) ?? this;
+      return Children.Select(c => c.GetTopmostElementAtPoint(point)).FirstOrDefault(c => c != null) ?? this;
     }
 
     /// <summary>
